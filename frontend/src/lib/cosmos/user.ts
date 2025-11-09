@@ -15,12 +15,14 @@ export const createUser = async (clerkId: string, email: string) => {
       );
 
       // 新規のユーザードキュメントを作成
-      // idにはCosmos DBのユニークIDが必要となるので、通常はclerkIdやUUID等をそのまま渡すことが多いです
       const { resource } = await container.items.create({
-        id: clerkId, // ここではclerkIdをそのままidとして利用
+        id: clerkId,
         clerkId: clerkId,
         email: email,
         createdAt: new Date().toISOString(),
+        isSubscribed: false, // サブスク加入中かどうか（true / false）
+        subscriptionPurchasedAt: null, // 購入日（ISO形式 or null）
+        subscriptionExpiresAt: null, // サブスクの有効期限（ISO形式 or null）
       });
 
       // 作成したリソースを返却
@@ -101,6 +103,37 @@ export const deleteUser = async (clerkId: string) => {
       await container.item(clerkId, clerkId).delete();
 
       resolve(true);
+    } catch (error) {
+      console.error(error);
+      reject(error);
+    }
+  });
+};
+
+/**
+ * ユーザー情報取得
+ */
+export const selectUser = async (clerkId: string) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const cosmosClient = new CosmosClient(
+        process.env.COSMOS_CONNECTION_STRING!
+      );
+      const database = cosmosClient.database(process.env.COSMOS_DATABASE_NAME!);
+      const container = database.container(
+        process.env.COSMOS_CONTAINER_NAME_USER!
+      );
+
+      // 更新対象のアイテムを取得
+      const item = container.item(clerkId, clerkId);
+      const { resource: existingUser } = await item.read();
+
+      if (!existingUser) {
+        // ユーザーが見つからなかった場合
+        throw new Error(`User with id ${clerkId} not found.`);
+      }
+
+      resolve(existingUser);
     } catch (error) {
       console.error(error);
       reject(error);
