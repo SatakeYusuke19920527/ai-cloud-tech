@@ -17,9 +17,11 @@ export default function DashboardLayout({
           <div className="flex w-full">
             <Link
               href="/dashboard"
-              className="flex cursor-pointer items-center space-x-2"
+              className="group inline-flex cursor-pointer items-center gap-2"
             >
-              {/* title/logo if needed */}
+              <span className="text-lg font-semibold tracking-tight text-foreground transition group-hover:text-indigo-500">
+                AI Cloud Tech
+              </span>
             </Link>
             <div className="ml-auto hidden md:block">
               <AuthButton />
