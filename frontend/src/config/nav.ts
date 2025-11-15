@@ -1,12 +1,12 @@
 import { NavItem } from '@/types/types';
 import {
+  BookOpenCheck,
   FileBarChart,
   LayoutDashboard,
   Rocket,
   Settings,
   ShieldCheck,
   Target,
-  BookOpenCheck,
 } from 'lucide-react';
 
 export const navItems: NavItem[] = [
@@ -16,7 +16,7 @@ export const navItems: NavItem[] = [
     icon: LayoutDashboard,
   },
   {
-    title: 'Get Started',
+    title: '教科書',
     href: '/dashboard/get-started',
     icon: Rocket,
   },
