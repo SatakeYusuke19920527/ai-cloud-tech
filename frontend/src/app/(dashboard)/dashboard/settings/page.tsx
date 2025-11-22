@@ -1,11 +1,17 @@
 'use client';
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import { cn } from '@/lib/utils';
 import { SignInButton, SignUpButton, useAuth } from '@clerk/nextjs';
 import { useEffect, useMemo, useState } from 'react';
-import { cn } from '@/lib/utils';
 
 type SubscriptionInfo = {
   isSubscribed: boolean;
@@ -14,7 +20,9 @@ type SubscriptionInfo = {
 
 export default function Settings() {
   const { userId } = useAuth();
-  const [subscription, setSubscription] = useState<SubscriptionInfo | null>(null);
+  const [subscription, setSubscription] = useState<SubscriptionInfo | null>(
+    null
+  );
   const [loadingSubscription, setLoadingSubscription] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -40,7 +48,9 @@ export default function Settings() {
       } catch (err) {
         console.error(err);
         if (isMounted) {
-          setError('購読情報を取得できませんでした。時間をおいて再試行してください。');
+          setError(
+            '購読情報を取得できませんでした。時間をおいて再試行してください。'
+          );
         }
       } finally {
         if (isMounted) {
@@ -58,7 +68,9 @@ export default function Settings() {
   const purchaseDisabled = loadingSubscription || !!subscription?.isSubscribed;
   const cancelDisabled = loadingSubscription || !subscription?.isSubscribed;
 
-  const subscriptionStatus = subscription?.isSubscribed ? 'AI Cloud Tech Pro（有効）' : '未加入';
+  const subscriptionStatus = subscription?.isSubscribed
+    ? 'AI Cloud Tech Pro（有効）'
+    : '未加入';
   const expiryLabel = useMemo(() => {
     if (!subscription?.subscriptionExpiresAt) return null;
     const date = new Date(subscription.subscriptionExpiresAt);
@@ -78,7 +90,9 @@ export default function Settings() {
           <p className="text-sm font-semibold uppercase tracking-[0.3em] text-muted-foreground">
             Subscription
           </p>
-          <h1 className="text-2xl font-semibold text-foreground">設定ページを利用するにはログインが必要です</h1>
+          <h1 className="text-2xl font-semibold text-foreground">
+            設定ページを利用するにはログインが必要です
+          </h1>
           <p className="text-sm text-muted-foreground">
             ログインまたは新規登録すると、サブスクリプションの購入・解約を管理できます。
           </p>
@@ -110,15 +124,21 @@ export default function Settings() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-semibold tracking-tight text-foreground">設定</h1>
+        <h1 className="text-3xl font-semibold tracking-tight text-foreground">
+          設定
+        </h1>
         <p className="text-sm text-muted-foreground">
           サブスクリプションのステータスや支払いに関する操作を管理できます。
         </p>
       </div>
       <Separator />
       <div className="rounded-2xl border border-muted bg-card/70 p-5 shadow-sm">
-        <p className="text-sm font-medium text-muted-foreground">現在のステータス</p>
-        <p className="text-xl font-semibold text-foreground">{subscriptionStatus}</p>
+        <p className="text-sm font-medium text-muted-foreground">
+          現在のステータス
+        </p>
+        <p className="text-xl font-semibold text-foreground">
+          {subscriptionStatus}
+        </p>
         <p className="text-xs text-muted-foreground">
           {loadingSubscription && '最新情報を取得しています...'}
           {!loadingSubscription &&
@@ -145,7 +165,9 @@ export default function Settings() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-baseline gap-2">
-              <span className="text-4xl font-semibold tracking-tight">¥1,000</span>
+              <span className="text-4xl font-semibold tracking-tight">
+                ¥1,000
+              </span>
               <span className="text-sm text-muted-foreground">/ 月</span>
             </div>
             <ul className="list-disc space-y-1 pl-5 text-sm text-muted-foreground">
@@ -153,9 +175,23 @@ export default function Settings() {
               <li>演習ドリル、模試、弱点サマリー</li>
               <li>優先メールサポート</li>
             </ul>
-            <Button className="w-full" size="lg" disabled={purchaseDisabled}>
-              プランを購入する
-            </Button>
+            <form action="/api/checkout_sessions" method="POST">
+              <input type="hidden" name="clerkId" value={userId ?? ''} />
+              <Button
+                type="submit"
+                role="link"
+                className="w-full"
+                size="lg"
+                disabled={purchaseDisabled}
+              >
+                プランを購入する
+              </Button>
+              {/* <section>
+                <button type="submit" role="link" disabled={purchaseDisabled}>
+                  Checkout
+                </button>
+              </section> */}
+            </form>
           </CardContent>
         </Card>
 
@@ -173,9 +209,15 @@ export default function Settings() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="rounded-lg border border-destructive/40 bg-destructive/5 p-4 text-sm text-destructive">
-              解約するとAI Cloud Tech Proのすべての機能へのアクセスが停止します。
+              解約するとAI Cloud Tech
+              Proのすべての機能へのアクセスが停止します。
             </div>
-            <Button variant="destructive" className="w-full" size="lg" disabled={cancelDisabled}>
+            <Button
+              variant="destructive"
+              className="w-full"
+              size="lg"
+              disabled={cancelDisabled}
+            >
               解約手続きを進める
             </Button>
           </CardContent>

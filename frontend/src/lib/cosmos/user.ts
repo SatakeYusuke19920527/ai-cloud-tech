@@ -77,6 +77,50 @@ export const updateUser = async (clerkId: string, newEmail: string) => {
 };
 
 /**
+ * ユーザー更新
+ *  - subscription開始 or 停止
+ */
+export const updateSubscription = async (
+  clerkId: string,
+  isSubscribed: boolean
+) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const cosmosClient = new CosmosClient(
+        process.env.COSMOS_CONNECTION_STRING!
+      );
+      const database = cosmosClient.database(process.env.COSMOS_DATABASE_NAME!);
+      const container = database.container(
+        process.env.COSMOS_CONTAINER_NAME_USER!
+      );
+
+      // 更新対象のアイテムを取得
+      const item = container.item(clerkId, clerkId);
+      const { resource: existingUser } = await item.read();
+
+      if (!existingUser) {
+        // ユーザーが見つからなかった場合
+        throw new Error(`User with id ${clerkId} not found.`);
+      }
+
+      // 更新フィールドをマージ
+      const updatedUser = {
+        ...existingUser,
+        isSubscribed,
+        updatedAt: new Date().toISOString(),
+      };
+
+      // 置換 (replace) で更新を実施
+      const { resource } = await item.replace(updatedUser);
+      resolve(resource);
+    } catch (error) {
+      console.error(error);
+      reject(error);
+    }
+  });
+};
+
+/**
  * ユーザー削除
  */
 export const deleteUser = async (clerkId: string) => {
