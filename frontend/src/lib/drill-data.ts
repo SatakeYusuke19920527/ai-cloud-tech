@@ -1,13 +1,6 @@
+import chapter1 from '@/data/drill/chapter-1.json' assert { type: 'json' };
 import { MCQQuestion } from '@/components/assessment/mcq-runner';
-
-export type DrillChapter = {
-  slug: string;
-  title: string;
-  description: string;
-  questions: MCQQuestion[];
-  score?: number; // percentage when taken
-};
-
+import { DrillChapter } from '@/types/types';
 function createQuestionSet(prefix: string): MCQQuestion[] {
   return Array.from({ length: 20 }, (_, i) => {
     const num = i + 1;
@@ -24,13 +17,10 @@ function createQuestionSet(prefix: string): MCQQuestion[] {
   });
 }
 
+const chapter1FromJson = chapter1 as DrillChapter;
+
 export const drillChapters: DrillChapter[] = [
-  {
-    slug: 'chapter-1',
-    title: '第1章 人工知能とは - ドリル',
-    description: 'AIの定義と代表例を復習する20問',
-    questions: createQuestionSet('人工知能の基礎を確認'),
-  },
+  chapter1FromJson,
   {
     slug: 'chapter-2',
     title: '第2章 動向 - ドリル',

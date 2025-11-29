@@ -1,3 +1,5 @@
+import { MCQQuestion } from '@/components/assessment/mcq-runner';
+
 export interface NavItem {
   title: string;
   href: string;
@@ -22,4 +24,12 @@ export type SummaryChapter = {
     term: string;
     meaning: string;
   }[];
+};
+
+export type DrillChapter = {
+  slug: string;
+  title: string;
+  description: string;
+  questions: MCQQuestion[];
+  score?: number; // percentage when taken
 };

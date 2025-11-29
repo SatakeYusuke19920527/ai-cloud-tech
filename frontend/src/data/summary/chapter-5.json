@@ -1,0 +1,255 @@
+{
+  "slug": "chapter-5",
+  "title": "第5章 ディープラーニングの要素技術",
+  "description": "主要アーキテクチャや最適化テクニックの用語集",
+  "keywords": [
+    {
+      "term": "重み",
+      "meaning": "ニューラルネットで入力に掛けるパラメータ。"
+    },
+    {
+      "term": "線形関数",
+      "meaning": "重みとバイアスで入力を線形変換する関数。"
+    },
+    {
+      "term": "Atrous Convolution",
+      "meaning": "間引き（ダイレーション）を入れ広い受容野を持つ畳み込み。"
+    },
+    {
+      "term": "Depthwise Separable Convolution",
+      "meaning": "空間とチャネルの畳み込みを分離し計算を削減する手法。"
+    },
+    {
+      "term": "Dilated Convolution",
+      "meaning": "フィルタ間隔を空け受容野を広げる畳み込み。"
+    },
+    {
+      "term": "カーネル",
+      "meaning": "畳み込み時に使う小さな重み行列。"
+    },
+    {
+      "term": "ストライド",
+      "meaning": "畳み込み時の移動幅。"
+    },
+    {
+      "term": "畳み込み操作",
+      "meaning": "フィルタをスライドさせ特徴を抽出する処理。"
+    },
+    {
+      "term": "畳み込みニューラルネットワーク (CNN)",
+      "meaning": "画像処理に強い畳み込み層中心のニューラルネット。"
+    },
+    {
+      "term": "特徴マップ",
+      "meaning": "畳み込み後に得られる特徴表現のマップ。"
+    },
+    {
+      "term": "パディング",
+      "meaning": "畳み込み前に周辺へゼロを追加する操作。"
+    },
+    {
+      "term": "フィルタ",
+      "meaning": "畳み込みで使う特徴抽出のための重み集合。"
+    },
+    {
+      "term": "グループ正規化",
+      "meaning": "チャネルをグループ分けして正規化する手法。"
+    },
+    {
+      "term": "バッチ正規化",
+      "meaning": "バッチ単位で平均・分散を正規化し学習を安定化させる手法。"
+    },
+    {
+      "term": "レイヤー正規化",
+      "meaning": "層全体の特徴を正規化する手法。"
+    },
+    {
+      "term": "インスタンス正規化",
+      "meaning": "サンプルごとに正規化を行う手法。"
+    },
+    {
+      "term": "グローバルアベレージプーリング (GAP)",
+      "meaning": "空間方向の平均を取り1ベクトルに圧縮する操作。"
+    },
+    {
+      "term": "最大値プーリング",
+      "meaning": "領域内の最大値を取り特徴を抽出する操作。"
+    },
+    {
+      "term": "不変性の獲得",
+      "meaning": "位置や回転などに左右されにくくする性質獲得。"
+    },
+    {
+      "term": "平均値プーリング",
+      "meaning": "領域内の平均値を取るプーリング操作。"
+    },
+    {
+      "term": "ResNet",
+      "meaning": "残差接続により深いネットの学習を可能にしたネットワーク。"
+    },
+    {
+      "term": "BPTT",
+      "meaning": "時系列に沿って展開して誤差逆伝播を行う手法。"
+    },
+    {
+      "term": "GRU",
+      "meaning": "ゲート構造で長期依存を扱うRNNモデル。"
+    },
+    {
+      "term": "LSTM",
+      "meaning": "長期依存を扱うためのゲート付きRNNモデル。"
+    },
+    {
+      "term": "エルマンネットワーク",
+      "meaning": "隠れ状態をフィードバックする初期RNNモデル。"
+    },
+    {
+      "term": "勾配消失問題",
+      "meaning": "深いネットで勾配が小さくなり学習が進まない問題。"
+    },
+    {
+      "term": "勾配爆発問題",
+      "meaning": "勾配が大きくなり学習が不安定になる問題。"
+    },
+    {
+      "term": "教師強制",
+      "meaning": "RNNの訓練で正解データを次ステップの入力に使う方法。"
+    },
+    {
+      "term": "ゲート機構",
+      "meaning": "情報の保持・忘却を制御するRNNの仕組み。"
+    },
+    {
+      "term": "双方向RNN (Bidirectional RNN)",
+      "meaning": "前方向と後方向の2方向から学習するRNN。"
+    },
+    {
+      "term": "時系列データ",
+      "meaning": "時間順に並んだデータ。"
+    },
+    {
+      "term": "ジョルダンネットワーク",
+      "meaning": "出力を次時刻の入力にフィードバックするRNN。"
+    },
+    {
+      "term": "リカレントニューラルネットワーク (RNN)",
+      "meaning": "時系列処理を行うニューラルネットモデル。"
+    },
+    {
+      "term": "Attention",
+      "meaning": "重要部分に重みを付ける仕組み。"
+    },
+    {
+      "term": "Multi-Head Attention",
+      "meaning": "複数視点のAttentionを並列計算する仕組み。"
+    },
+    {
+      "term": "Self-Attention",
+      "meaning": "系列内の要素同士の関係を直接学習するAttention。"
+    },
+    {
+      "term": "Seq2Seq",
+      "meaning": "入力系列から出力系列を生成するモデル構造。"
+    },
+    {
+      "term": "Source-Target Attention",
+      "meaning": "Encoder出力をDecoderが参照するAttention。"
+    },
+    {
+      "term": "Transformer",
+      "meaning": "RNNを使わずAttentionだけで構成されたモデルアーキテクチャ。"
+    },
+    {
+      "term": "位置エンコーディング",
+      "meaning": "系列の位置情報を埋め込む仕組み。"
+    },
+    {
+      "term": "キー",
+      "meaning": "Attentionで照合される値。"
+    },
+    {
+      "term": "クエリ",
+      "meaning": "Attentionで参照するための問い合わせベクトル。"
+    },
+    {
+      "term": "バリュー",
+      "meaning": "Attentionで最終的に参照される値。"
+    },
+    {
+      "term": "VQ-VAE",
+      "meaning": "潜在表現を離散化するオートエンコーダ。"
+    },
+    {
+      "term": "infoVAE",
+      "meaning": "情報理論的制約を加えたVAE。"
+    },
+    {
+      "term": "β-VAE",
+      "meaning": " disentanglement を促すためKL項を強めたVAE。"
+    },
+    {
+      "term": "次元削減",
+      "meaning": "特徴を少ない次元へ圧縮する技術。"
+    },
+    {
+      "term": "事前学習",
+      "meaning": "事前に大規模データで学んだモデルを利用する方法。"
+    },
+    {
+      "term": "積層オートエンコーダ",
+      "meaning": "複数層を重ねたオートエンコーダ。"
+    },
+    {
+      "term": "変分オートエンコーダ (VAE)",
+      "meaning": "潜在空間を確率分布として扱う生成モデル。"
+    },
+    {
+      "term": "Contrast",
+      "meaning": "画像のコントラストを変えるデータ拡張。"
+    },
+    {
+      "term": "Brightness",
+      "meaning": "明るさを変えるデータ拡張。"
+    },
+    {
+      "term": "Crop",
+      "meaning": "画像の一部を切り取るデータ拡張。"
+    },
+    {
+      "term": "CutMix",
+      "meaning": "画像とラベルを混ぜ合わせるデータ拡張。"
+    },
+    {
+      "term": "Cutout",
+      "meaning": "画像の一部をマスクするデータ拡張。"
+    },
+    {
+      "term": "Mixup",
+      "meaning": "画像とラベルを線形合成するデータ拡張。"
+    },
+    {
+      "term": "noising",
+      "meaning": "ノイズを加えるデータ拡張。"
+    },
+    {
+      "term": "paraphrasing",
+      "meaning": "テキストを言い換えるデータ拡張。"
+    },
+    {
+      "term": "RandAugment",
+      "meaning": "ランダムに複数の変換を適用するデータ拡張手法。"
+    },
+    {
+      "term": "Random Erasing",
+      "meaning": "画像の一部をランダムに削除するデータ拡張。"
+    },
+    {
+      "term": "Random Flip",
+      "meaning": "ランダムに反転させるデータ拡張。"
+    },
+    {
+      "term": "Rotate",
+      "meaning": "画像を回転させるデータ拡張。"
+    }
+  ]
+}
