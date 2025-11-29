@@ -13,7 +13,7 @@ export const chapters = [
   { slug: 'chapter-9', file: 'chapter-9.md' },
 ];
 
-const textDir = path.join(process.cwd(), 'src', 'text');
+const textDir = path.join(process.cwd(), 'src', 'data', 'text');
 
 export async function getChapterMeta(file: string) {
   const filePath = path.join(textDir, file);
