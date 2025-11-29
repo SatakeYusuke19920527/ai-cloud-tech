@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ArrowLeft, Bookmark } from 'lucide-react';
+import { currentUser } from '@clerk/nextjs/server';
 import { summaryChapters } from '@/lib/summary-data';
 import { MemorizeTable } from './memorize-table';
 
@@ -12,6 +13,7 @@ export default async function SummaryChapterPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
+  const user = await currentUser();
   const chapter = summaryChapters.find((c) => c.slug === slug);
   if (!chapter) {
     notFound();
@@ -38,7 +40,7 @@ export default async function SummaryChapterPage({
         <span>キーワードと意味を 1:1 で暗記するためのリスト</span>
       </div>
 
-      <MemorizeTable rows={chapter.keywords} />
+      <MemorizeTable rows={chapter.keywords} userId={user?.id ?? undefined} chapterSlug={chapter.slug} />
     </div>
   );
 }

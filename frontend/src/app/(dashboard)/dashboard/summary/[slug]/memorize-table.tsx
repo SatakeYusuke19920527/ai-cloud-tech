@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Check, RotateCcw } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -18,9 +18,11 @@ import { cn } from "@/lib/utils";
 
 type Props = {
   rows: SummaryChapter["keywords"];
+  userId?: string;
+  chapterSlug?: string;
 };
 
-export function MemorizeTable({ rows }: Props) {
+export function MemorizeTable({ rows, userId, chapterSlug }: Props) {
   const initialState = useMemo(
     () => Object.fromEntries(rows.map((row) => [row.term, false])),
     [rows]
@@ -28,8 +30,41 @@ export function MemorizeTable({ rows }: Props) {
   const [memorized, setMemorized] = useState<Record<string, boolean>>(initialState);
   const [revealed, setRevealed] = useState<Record<string, boolean>>(initialState);
 
+  useEffect(() => {
+    if (!userId || !chapterSlug) return;
+    const load = async () => {
+      try {
+        const res = await fetch(
+          `/api/summary-memorize?userId=${encodeURIComponent(userId)}&chapterSlug=${encodeURIComponent(chapterSlug)}`
+        );
+        if (!res.ok) return;
+        const json = await res.json();
+        if (json?.data) {
+          setMemorized((prev) => ({ ...prev, ...json.data }));
+        }
+      } catch (error) {
+        console.error("failed to load memorized state", error);
+      }
+    };
+    load();
+  }, [userId, chapterSlug]);
+
   const toggle = (term: string) => {
-    setMemorized((prev) => ({ ...prev, [term]: !prev[term] }));
+    const nextState = !memorized[term];
+    setMemorized((prev) => ({ ...prev, [term]: nextState }));
+    if (!userId || !chapterSlug) return;
+    fetch("/api/summary-memorize", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userId,
+        chapterSlug,
+        term,
+        isMemorized: nextState,
+      }),
+    }).catch((error) => {
+      console.error("failed to update memorized state", error);
+    });
   };
 
   const toggleReveal = (term: string) => {
