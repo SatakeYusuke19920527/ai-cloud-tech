@@ -209,8 +209,8 @@ export default function Settings() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="rounded-lg border border-destructive/40 bg-destructive/5 p-4 text-sm text-destructive">
-              解約するとAI Cloud Tech
-              Proのすべての機能へのアクセスが停止します。
+              解約すると次回の契約更新がされず、契約終了後はAI Cloud Tech
+              Proへのアクセスが停止します。
             </div>
             <Button
               variant="destructive"

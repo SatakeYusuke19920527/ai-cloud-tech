@@ -104,10 +104,15 @@ export const updateSubscription = async (
       }
 
       // 更新フィールドをマージ
+      const now = new Date();
+      const expiresAt = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+
       const updatedUser = {
         ...existingUser,
         isSubscribed,
-        updatedAt: new Date().toISOString(),
+        subscriptionPurchasedAt: isSubscribed ? now.toISOString() : null,
+        subscriptionExpiresAt: isSubscribed ? expiresAt.toISOString() : null,
+        updatedAt: now.toISOString(),
       };
 
       // 置換 (replace) で更新を実施
