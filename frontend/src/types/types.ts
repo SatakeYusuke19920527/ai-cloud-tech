@@ -13,3 +13,13 @@ export interface User {
   subscriptionPurchasedAt: string | null; // 購入日 (ISO)
   subscriptionExpiresAt: string | null; // 終了日 (ISO)
 }
+
+export type SummaryChapter = {
+  slug: string;
+  title: string;
+  description: string;
+  keywords: {
+    term: string;
+    meaning: string;
+  }[];
+};
