@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/table";
 import type { SummaryChapter } from "@/types/types";
 import { cn } from "@/lib/utils";
+import { Spinner } from "@/components/ui/spinner";
 
 type Props = {
   rows: SummaryChapter["keywords"];
@@ -29,11 +30,13 @@ export function MemorizeTable({ rows, userId, chapterSlug }: Props) {
   );
   const [memorized, setMemorized] = useState<Record<string, boolean>>(initialState);
   const [revealed, setRevealed] = useState<Record<string, boolean>>(initialState);
+  const [loading, setLoading] = useState(Boolean(userId && chapterSlug));
 
   useEffect(() => {
     if (!userId || !chapterSlug) return;
     const load = async () => {
       try {
+        setLoading(true);
         const res = await fetch(
           `/api/summary-memorize?userId=${encodeURIComponent(userId)}&chapterSlug=${encodeURIComponent(chapterSlug)}`
         );
@@ -44,6 +47,8 @@ export function MemorizeTable({ rows, userId, chapterSlug }: Props) {
         }
       } catch (error) {
         console.error("failed to load memorized state", error);
+      } finally {
+        setLoading(false);
       }
     };
     load();
@@ -70,6 +75,14 @@ export function MemorizeTable({ rows, userId, chapterSlug }: Props) {
   const toggleReveal = (term: string) => {
     setRevealed((prev) => ({ ...prev, [term]: !prev[term] }));
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-10">
+        <Spinner className="h-6 w-6 text-muted-foreground" />
+      </div>
+    );
+  }
 
   return (
     <Table>

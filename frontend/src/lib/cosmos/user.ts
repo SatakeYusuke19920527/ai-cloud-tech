@@ -111,11 +111,54 @@ export const updateSubscription = async (
         ...existingUser,
         isSubscribed,
         subscriptionPurchasedAt: isSubscribed ? now.toISOString() : null,
-        subscriptionExpiresAt: isSubscribed ? expiresAt.toISOString() : null,
+        subscriptionExpiresAt: isSubscribed
+          ? expiresAt.toISOString()
+          : existingUser.subscriptionExpiresAt ?? null,
         updatedAt: now.toISOString(),
       };
 
       // 置換 (replace) で更新を実施
+      const { resource } = await item.replace(updatedUser);
+      resolve(resource);
+    } catch (error) {
+      console.error(error);
+      reject(error);
+    }
+  });
+};
+
+/**
+ * サブスクリプション解約（自動更新停止）
+ *  - 現在の期限は維持し、isSubscribed を false にする
+ */
+export const cancelSubscription = async (clerkId: string) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const cosmosClient = new CosmosClient(
+        process.env.COSMOS_CONNECTION_STRING!
+      );
+      const database = cosmosClient.database(process.env.COSMOS_DATABASE_NAME!);
+      const container = database.container(
+        process.env.COSMOS_CONTAINER_NAME_USER!
+      );
+
+      const item = container.item(clerkId, clerkId);
+      const { resource: existingUser } = await item.read();
+
+      if (!existingUser) {
+        throw new Error(`User with id ${clerkId} not found.`);
+      }
+
+      const now = new Date();
+      const updatedUser = {
+        ...existingUser,
+        isSubscribed: false,
+        subscriptionCancelledAt: now.toISOString(),
+        // 現在の期限は維持（null の場合は null のまま）
+        subscriptionExpiresAt: existingUser.subscriptionExpiresAt ?? null,
+        updatedAt: now.toISOString(),
+      };
+
       const { resource } = await item.replace(updatedUser);
       resolve(resource);
     } catch (error) {

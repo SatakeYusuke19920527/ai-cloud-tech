@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ArrowLeft, Bookmark } from 'lucide-react';
 import { currentUser } from '@clerk/nextjs/server';
+
 import { summaryChapters } from '@/lib/summary-data';
 import { MemorizeTable } from './memorize-table';
 
