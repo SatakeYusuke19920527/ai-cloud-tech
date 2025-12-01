@@ -2,7 +2,9 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ArrowLeft, Bookmark } from 'lucide-react';
 import { currentUser } from '@clerk/nextjs/server';
+import { SignInButton, SignUpButton } from '@clerk/nextjs';
 
+import { Button } from '@/components/ui/button';
 import { summaryChapters } from '@/lib/summary-data';
 import { MemorizeTable } from './memorize-table';
 
@@ -18,6 +20,44 @@ export default async function SummaryChapterPage({
   const chapter = summaryChapters.find((c) => c.slug === slug);
   if (!chapter) {
     notFound();
+  }
+
+  if (!user) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-8 rounded-3xl border border-dashed border-muted-foreground/40 bg-card/60 px-8 py-16 text-center">
+        <div className="space-y-2">
+          <p className="text-sm font-semibold uppercase tracking-[0.3em] text-muted-foreground">
+            Summary
+          </p>
+          <h1 className="text-2xl font-semibold text-foreground">
+            要点整理を利用するにはログインが必要です
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            ログインまたは新規登録すると、要点整理や暗記リストを利用できます。
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center justify-center gap-4">
+          <SignInButton
+            mode="modal"
+            forceRedirectUrl={`/dashboard/summary/${slug}`}
+            fallbackRedirectUrl={`/dashboard/summary/${slug}`}
+          >
+            <Button size="lg" className="px-6">
+              ログイン
+            </Button>
+          </SignInButton>
+          <SignUpButton
+            mode="modal"
+            forceRedirectUrl={`/dashboard/summary/${slug}`}
+            fallbackRedirectUrl={`/dashboard/summary/${slug}`}
+          >
+            <Button size="lg" variant="outline" className="px-6">
+              新規登録
+            </Button>
+          </SignUpButton>
+        </div>
+      </div>
+    );
   }
 
   return (
