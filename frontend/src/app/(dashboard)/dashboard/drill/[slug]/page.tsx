@@ -4,10 +4,10 @@ import { ArrowLeft, BookOpen } from 'lucide-react';
 import { SignInButton, SignUpButton } from '@clerk/nextjs';
 import { currentUser } from '@clerk/nextjs/server';
 
+import DrillRunner from './runner-client';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { drillChapters } from '@/lib/drill-data';
-import { MCQRunner } from '@/components/assessment/mcq-runner';
 
 export const dynamicParams = false;
 
@@ -85,12 +85,7 @@ export default async function DrillChapterPage({
         )}
       </div>
 
-      <MCQRunner
-        questions={chapter.questions}
-        title={chapter.title}
-        description={chapter.description}
-        resultPath={`/dashboard/drill/${slug}/result`}
-      />
+      <DrillRunner chapter={chapter} slug={slug} />
     </div>
   );
 }

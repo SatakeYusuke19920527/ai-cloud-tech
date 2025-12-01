@@ -12,11 +12,15 @@ import {
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { useDispatch } from 'react-redux';
+import { AppDispatch } from '@/store/store';
+import { recordDrillAnswer } from '@/features/drillSlice';
 
 export type MCQQuestion = {
   prompt: string;
   choices: [string, string, string, string];
   answerIndex: number;
+  explanation?: string;
 };
 
 export type MCQRunnerProps = {
@@ -24,6 +28,7 @@ export type MCQRunnerProps = {
   description?: string;
   questions: MCQQuestion[];
   resultPath?: string;
+  trackChapterSlug?: string;
 };
 
 export function MCQRunner({
@@ -31,8 +36,10 @@ export function MCQRunner({
   description,
   questions,
   resultPath,
+  trackChapterSlug,
 }: MCQRunnerProps) {
   const router = useRouter();
+  const dispatch = useDispatch<AppDispatch>();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedChoice, setSelectedChoice] = useState<number | null>(null);
   const [answers, setAnswers] = useState<Record<number, number>>({});
@@ -46,22 +53,27 @@ export function MCQRunner({
 
   const handleComplete = (updated: Record<number, number>) => {
     if (!resultPath) return;
-    const incorrect = Object.entries(updated)
-      .map(([idx, value]) => ({ idx: Number(idx), value }))
-      .filter(({ idx, value }) => questions[idx].answerIndex !== value)
-      .map(({ idx }) => idx);
-    const score = Math.round(
-      ((questions.length - incorrect.length) / questions.length) * 100
-    );
-    const params = new URLSearchParams({ score: String(score) });
-    if (incorrect.length) {
-      params.set('incorrect', incorrect.join(','));
-    }
-    router.push(`${resultPath}?${params.toString()}`);
+    router.push(resultPath);
   };
 
   const handleNext = () => {
     if (selectedChoice === null) return;
+    // record answer
+    if (trackChapterSlug) {
+      dispatch(
+        recordDrillAnswer({
+          chapterSlug: trackChapterSlug,
+          questionIndex: currentIndex,
+          prompt: question.prompt,
+          choices: question.choices,
+          answerIndex: question.answerIndex,
+          selectedIndex: selectedChoice,
+          correct: question.answerIndex === selectedChoice,
+          explanation: question.explanation,
+        })
+      );
+    }
+
     const updatedAnswers = { ...answers, [currentIndex]: selectedChoice };
     setAnswers(updatedAnswers);
 

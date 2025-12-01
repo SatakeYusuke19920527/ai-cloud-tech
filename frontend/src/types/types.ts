@@ -35,5 +35,12 @@ export type DrillChapter = {
 };
 
 export type DrillType = {
-  title: string;
+  chapterSlug: string;
+  questionIndex: number;
+  prompt: string;
+  choices: [string, string, string, string];
+  answerIndex: number;
+  selectedIndex: number;
+  correct: boolean;
+  explanation?: string;
 };
