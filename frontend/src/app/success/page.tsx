@@ -44,7 +44,11 @@ export default async function Success({ searchParams }: Props) {
         session.payment_status === 'paid' &&
         typeof session.metadata?.clerkId === 'string'
       ) {
-        await updateSubscription(session.metadata.clerkId, true);
+        const subscriptionId =
+          typeof session.subscription === 'string'
+            ? session.subscription
+            : session.subscription?.id ?? null;
+        await updateSubscription(session.metadata.clerkId, true, subscriptionId);
       }
     } catch (error) {
       console.error('Failed to finalize subscription after checkout', error);

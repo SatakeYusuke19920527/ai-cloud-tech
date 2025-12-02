@@ -8,7 +8,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
 import {
   Dialog,
   DialogContent,
@@ -17,6 +16,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 import { SignInButton, SignUpButton, useAuth } from '@clerk/nextjs';
 import { useEffect, useMemo, useState } from 'react';
@@ -107,8 +107,8 @@ export default function Settings() {
       ? '未加入'
       : 'AI Cloud Tech Pro（有効）'
     : hasActiveAccess
-      ? 'AI Cloud Tech Pro（期限まで利用可）'
-      : '未加入';
+    ? 'AI Cloud Tech Pro（期限まで利用可）'
+    : '未加入';
 
   if (!userId) {
     return (
@@ -184,7 +184,8 @@ export default function Settings() {
                   {expiryLabel ?? '情報取得中'}
                 </p>
                 <p className="text-destructive">
-                  自動更新は停止しています。期限までは Pro プランを利用できますが、その後はアクセスできなくなります。サブスクリプションを再度購入されたい場合は有効期限後に再度購入してください。
+                  自動更新は停止しています。期限までは Pro
+                  プランを利用できますが、その後はアクセスできなくなります。サブスクリプションを再度購入されたい場合は有効期限後に再度購入してください。
                 </p>
               </>
             ) : (
@@ -231,7 +232,8 @@ export default function Settings() {
               </Button>
               {!subscription?.isSubscribed && hasActiveAccess && (
                 <p className="mt-2 text-xs text-muted-foreground">
-                  {expiryLabel ?? '有効期限'} までは現在の Pro プランを利用できます。期限が切れると購入可能になります。
+                  {expiryLabel ?? '有効期限'} までは現在の Pro
+                  プランを利用できます。期限が切れると購入可能になります。
                 </p>
               )}
               {/* <section>
@@ -250,7 +252,7 @@ export default function Settings() {
           )}
         >
           <CardHeader>
-            <CardTitle>サブスクリプションを解約</CardTitle>
+            <CardTitle>サブスクリプションを停止</CardTitle>
             <CardDescription>
               次回更新日前に解約すれば、それ以降の料金は発生しません。利用中の機能は支払い済み期間までご利用いただけます。
             </CardDescription>
@@ -277,8 +279,10 @@ export default function Settings() {
             <DialogHeader>
               <DialogTitle>サブスクリプションを解約しますか？</DialogTitle>
               <DialogDescription>
-                解約しても支払い済みの期限までは Pro プランを利用できます。期限（
-                {expiryLabel ?? '未設定'}）を過ぎると自動でアクセスが停止します。
+                解約しても支払い済みの期限までは Pro
+                プランを利用できます。期限（
+                {expiryLabel ?? '未設定'}
+                ）を過ぎると自動でアクセスが停止します。
               </DialogDescription>
             </DialogHeader>
             <DialogFooter className="flex flex-col gap-2 sm:flex-row sm:justify-end">

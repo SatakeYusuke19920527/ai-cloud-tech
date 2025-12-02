@@ -1,4 +1,5 @@
 import { CosmosClient } from '@azure/cosmos';
+import { stripe } from '@/lib/stripe';
 
 /**
  * ユーザー作成
@@ -82,7 +83,8 @@ export const updateUser = async (clerkId: string, newEmail: string) => {
  */
 export const updateSubscription = async (
   clerkId: string,
-  isSubscribed: boolean
+  isSubscribed: boolean,
+  subscriptionId?: string | null
 ) => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -110,6 +112,7 @@ export const updateSubscription = async (
       const updatedUser = {
         ...existingUser,
         isSubscribed,
+        subscriptionId: isSubscribed ? subscriptionId ?? existingUser.subscriptionId ?? null : null,
         subscriptionPurchasedAt: isSubscribed ? now.toISOString() : null,
         subscriptionExpiresAt: isSubscribed
           ? expiresAt.toISOString()
@@ -150,12 +153,25 @@ export const cancelSubscription = async (clerkId: string) => {
       }
 
       const now = new Date();
+
+      // Stripeの自動更新を停止（サブスクリプションIDがある場合のみ）
+      if (existingUser.subscriptionId) {
+        try {
+          await stripe.subscriptions.update(existingUser.subscriptionId, {
+            cancel_at_period_end: true,
+          });
+        } catch (stripeError) {
+          console.error('Stripe cancel error', stripeError);
+        }
+      }
+
       const updatedUser = {
         ...existingUser,
         isSubscribed: false,
         subscriptionCancelledAt: now.toISOString(),
         // 現在の期限は維持（null の場合は null のまま）
         subscriptionExpiresAt: existingUser.subscriptionExpiresAt ?? null,
+        subscriptionId: existingUser.subscriptionId ?? null,
         updatedAt: now.toISOString(),
       };
 
