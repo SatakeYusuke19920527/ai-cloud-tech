@@ -1,0 +1,121 @@
+import type { Components } from 'react-markdown';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+
+import { cn } from '@/lib/utils';
+
+type MarkdownProps = {
+  content: string;
+  className?: string;
+};
+
+type CodeProps = React.ComponentPropsWithoutRef<'code'> & {
+  inline?: boolean;
+};
+
+const normalizeHeadings = (text: string) => {
+  // Zenn 風の見出しを崩さず、全角スペースを含む見出し行を正規化
+  return text.replace(/^(#{1,6})(?:[ \t]|\u3000)+/gm, '$1 ');
+};
+
+const markdownComponents: Components = {
+  h1: (props) => (
+    <h1
+      className="mt-10 border-b border-border pb-3 text-3xl font-bold leading-tight tracking-tight text-foreground first:mt-0"
+      {...props}
+    />
+  ),
+  h2: (props) => (
+    <h2
+      className="mt-8 border-b border-border/70 pb-2 text-2xl font-semibold leading-tight tracking-tight text-foreground first:mt-0"
+      {...props}
+    />
+  ),
+  h3: (props) => (
+    <h3 className="mt-6 text-xl font-semibold leading-snug tracking-tight text-foreground first:mt-0" {...props} />
+  ),
+  p: (props) => <p className="leading-7 text-foreground" {...props} />,
+  a: ({ href, ...props }) => (
+    <a
+      className="font-semibold text-primary underline decoration-2 underline-offset-4 transition hover:decoration-4"
+      href={href}
+      rel="noopener noreferrer"
+      target={href?.startsWith('http') ? '_blank' : undefined}
+      {...props}
+    />
+  ),
+  blockquote: (props) => (
+    <blockquote
+      className="my-6 space-y-2 border-l-4 border-primary/40 bg-muted/60 px-4 py-3 text-base text-foreground/80"
+      {...props}
+    />
+  ),
+  ul: (props) => (
+    <ul className="my-4 list-disc space-y-2 pl-6" {...props} />
+  ),
+  ol: (props) => (
+    <ol className="my-4 list-decimal space-y-2 pl-6" {...props} />
+  ),
+  li: (props) => <li className="leading-7 text-foreground marker:text-muted-foreground" {...props} />,
+  hr: (props) => <hr className="my-8 border-border/80" {...props} />,
+  table: (props) => (
+    <div className="my-6 overflow-x-auto rounded-lg border border-border">
+      <table className="w-full border-collapse text-left text-sm" {...props} />
+    </div>
+  ),
+  th: (props) => <th className="bg-muted/60 px-4 py-2 font-semibold text-foreground" {...props} />,
+  td: (props) => (
+    <td className="border-t border-border/70 px-4 py-2 align-top text-muted-foreground" {...props} />
+  ),
+  code: ({ inline, className, children, ...props }: CodeProps) => {
+    if (inline) {
+      return (
+        <code
+          className={cn(
+            'rounded-md bg-muted px-1.5 py-0.5 font-mono text-sm text-foreground',
+            className
+          )}
+          {...props}
+        >
+          {children}
+        </code>
+      );
+    }
+
+    return (
+      <pre className="my-6 overflow-x-auto rounded-lg border border-border bg-muted/60 p-4 text-sm shadow-sm">
+        <code className={cn('block font-mono leading-relaxed text-foreground', className)} {...props}>
+          {children}
+        </code>
+      </pre>
+    );
+  },
+  img: ({ alt, ...props }) => (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      alt={alt ?? ''}
+      className="my-6 w-full rounded-lg border border-border bg-muted object-contain"
+      loading="lazy"
+      {...props}
+    />
+  ),
+  strong: (props) => <strong className="font-semibold text-foreground" {...props} />,
+  em: (props) => <em className="text-foreground" {...props} />,
+};
+
+export function Markdown({ content, className }: MarkdownProps) {
+  const normalized = normalizeHeadings(content);
+
+  return (
+    <ReactMarkdown
+      remarkPlugins={[remarkGfm]}
+      components={markdownComponents}
+      className={cn(
+        'markdown-body text-[15px] leading-7 text-foreground [&>*+*]:mt-5 [&>*:first-child]:mt-0',
+        className
+      )}
+    >
+      {normalized}
+    </ReactMarkdown>
+  );
+}

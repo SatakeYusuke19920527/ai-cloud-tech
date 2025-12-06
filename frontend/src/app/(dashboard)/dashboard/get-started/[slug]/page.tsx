@@ -1,9 +1,8 @@
 import { notFound } from 'next/navigation';
-import ReactMarkdown from 'react-markdown';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { Markdown } from '@/components/markdown/markdown';
+import { Separator } from '@/components/ui/separator';
 import { getChapterBySlug, chapters } from '@/lib/chapter-data';
 
 export default async function ChapterPage({
@@ -18,34 +17,30 @@ export default async function ChapterPage({
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
+    <div className="w-full py-10 sm:py-12">
+      <main className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-2 sm:px-6 md:px-10">
+        <div className="space-y-2">
           <Link
             href="/dashboard/get-started"
-            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+            className="inline-flex items-center gap-2 text-sm text-muted-foreground transition hover:text-foreground"
           >
             <ArrowLeft className="h-4 w-4" />
             章一覧に戻る
           </Link>
-          <h1 className="mt-2 text-3xl font-semibold tracking-tight text-foreground">{chapter.title}</h1>
+          <h1 className="text-3xl font-semibold leading-tight tracking-tight text-foreground">
+            {chapter.title}
+          </h1>
           <p className="text-sm text-muted-foreground">{chapter.summary}</p>
         </div>
-      </div>
 
-      <Card className="border border-border bg-card">
-        <CardHeader>
-          <CardTitle>{chapter.title}</CardTitle>
-          <CardDescription>章の全文</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ScrollArea className="h-[70vh] pr-4">
-            <ReactMarkdown className="space-y-4 text-sm leading-relaxed [&_h1]:text-2xl [&_h2]:text-xl [&_h3]:text-lg [&_h1]:font-bold [&_h2]:font-semibold [&_h3]:font-semibold [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_hr]:my-4 [&_strong]:font-semibold">
-              {chapter.content}
-            </ReactMarkdown>
-          </ScrollArea>
-        </CardContent>
-      </Card>
+        <Separator />
+
+        <section className="bg-card p-6 sm:p-8">
+          <article className="space-y-8">
+            <Markdown content={chapter.content} className="text-[15px]" />
+          </article>
+        </section>
+      </main>
     </div>
   );
 }

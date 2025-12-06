@@ -1,0 +1,531 @@
+{
+  "slug": "chapter-6",
+  "title": "第6章 ディープラーニングの応用例",
+  "description": "代表的なユースケースと評価指標を整理",
+  "keywords": [
+    {
+      "term": "AlexNet",
+      "meaning": "深層学習ブームの火付け役となったCNNモデル。"
+    },
+    {
+      "term": "DeepLab",
+      "meaning": "Atrous畳み込みによる高精度セマンティックセグメンテーションモデル。"
+    },
+    {
+      "term": "DenseNet",
+      "meaning": "各層を密結合し特徴伝播を強化するネットワーク。"
+    },
+    {
+      "term": "EfficientNet",
+      "meaning": "深さ・幅・解像度を同時にスケール最適化した高効率CNN。"
+    },
+    {
+      "term": "Fast R-CNN",
+      "meaning": "ROIプーリングを導入し高速化した物体検出モデル。"
+    },
+    {
+      "term": "Faster R-CNN",
+      "meaning": "RPNにより領域提案を高速化した高精度検出モデル。"
+    },
+    {
+      "term": "FCN",
+      "meaning": "全結合層を畳み込み化し画像をピクセル単位で分類するモデル。"
+    },
+    {
+      "term": "FPN",
+      "meaning": "マルチスケール特徴を融合した検出向けネットワーク。"
+    },
+    {
+      "term": "GoogLeNet",
+      "meaning": "Inception構造を導入し効率化を実現したモデル。"
+    },
+    {
+      "term": "Mask R-CNN",
+      "meaning": "物体検出＋領域セグメンテーションを行うモデル。"
+    },
+    {
+      "term": "MnasNet",
+      "meaning": "NASによりモバイル向けに自動設計されたモデル。"
+    },
+    {
+      "term": "MobileNet",
+      "meaning": "Depthwise Separable Convolutionを用いた軽量モデル。"
+    },
+    {
+      "term": "NAS",
+      "meaning": "ニューラルネット構造を自動探索する仕組み。"
+    },
+    {
+      "term": "OpenPose",
+      "meaning": "人体の関節位置を推定する姿勢推定モデル。"
+    },
+    {
+      "term": "PSPNet",
+      "meaning": "シーン解析のためPyramid Poolingを導入したモデル。"
+    },
+    {
+      "term": "ResNet",
+      "meaning": "残差接続で深いネットの学習を可能にしたCNN。"
+    },
+    {
+      "term": "SegNet",
+      "meaning": "エンコーダ・デコーダ構造を持つセグメンテーションモデル。"
+    },
+    {
+      "term": "SENet",
+      "meaning": "チャネル注意を導入した高精度CNN。"
+    },
+    {
+      "term": "SSD",
+      "meaning": "マルチスケールで高速な物体検出モデル。"
+    },
+    {
+      "term": "U-Net",
+      "meaning": "医療画像でよく使われるセグメンテーションモデル。"
+    },
+    {
+      "term": "VGG",
+      "meaning": "シンプルな構造だが高性能な深いCNN。"
+    },
+    {
+      "term": "Vision Transformer",
+      "meaning": "Transformerを画像に適用したモデル。"
+    },
+    {
+      "term": "Wide ResNet",
+      "meaning": "ResNetを横方向に広げた高性能モデル。"
+    },
+    {
+      "term": "YOLO",
+      "meaning": "リアルタイム高速物体検出モデル。"
+    },
+    {
+      "term": "一般物体認識",
+      "meaning": "画像内に何が映っているかを分類するタスク。"
+    },
+    {
+      "term": "インスタンスセグメンテーション",
+      "meaning": "物体ごとに領域を切り出すタスク。"
+    },
+    {
+      "term": "姿勢推定",
+      "meaning": "人体の関節位置を推定するタスク。"
+    },
+    {
+      "term": "セマンティックセグメンテーション",
+      "meaning": "各ピクセルをクラス分類するタスク。"
+    },
+    {
+      "term": "物体検出",
+      "meaning": "物体の位置とクラスを推定するタスク。"
+    },
+    {
+      "term": "物体識別",
+      "meaning": "画像の内容を分類するタスク。"
+    },
+    {
+      "term": "パノプティックセグメンテーション",
+      "meaning": "セマンティック＋インスタンスを統合した解析。"
+    },
+    {
+      "term": "BERT",
+      "meaning": "双方向の文脈を学習するLLMモデル。"
+    },
+    {
+      "term": "BoW",
+      "meaning": "単語出現回数を特徴とする表現。"
+    },
+    {
+      "term": "CBOW",
+      "meaning": "周囲の単語から中心語を予測するword2vec手法。"
+    },
+    {
+      "term": "CEC",
+      "meaning": "LSTMで長期依存を扱うためのセル構造。"
+    },
+    {
+      "term": "ChatGPT",
+      "meaning": "GPTモデルを用いた対話型LLM。"
+    },
+    {
+      "term": "ELMo",
+      "meaning": "文脈依存の単語表現を学習するモデル。"
+    },
+    {
+      "term": "fastText",
+      "meaning": "サブワード情報を使う高速単語埋め込みモデル。"
+    },
+    {
+      "term": "GLUE",
+      "meaning": "NLPモデルの性能を測る代表的ベンチマーク。"
+    },
+    {
+      "term": "GPT-n",
+      "meaning": "OpenAIが開発するGenerative Pretrained Transformerの系列。"
+    },
+    {
+      "term": "n-gram",
+      "meaning": "連続したn単語を特徴とする統計モデル。"
+    },
+    {
+      "term": "PaLM",
+      "meaning": "Googleの大規模言語モデル。"
+    },
+    {
+      "term": "Seq2Seq",
+      "meaning": "入力系列から出力系列を生成する構造。"
+    },
+    {
+      "term": "TF-IDF",
+      "meaning": "単語の重要度を測る統計指標。"
+    },
+    {
+      "term": "word2vec",
+      "meaning": "単語の分散表現を学習するモデル。"
+    },
+    {
+      "term": "感情分析",
+      "meaning": "文章の感情を分類するタスク。"
+    },
+    {
+      "term": "機械翻訳",
+      "meaning": "文章を他言語へ翻訳するタスク。"
+    },
+    {
+      "term": "形態素解析",
+      "meaning": "単語に分割する前処理技術。"
+    },
+    {
+      "term": "構文解析",
+      "meaning": "文の構造を解析する技術。"
+    },
+    {
+      "term": "質問応答",
+      "meaning": "質問に対する回答を生成するタスク。"
+    },
+    {
+      "term": "情報検索",
+      "meaning": "クエリに適した文書を探す技術。"
+    },
+    {
+      "term": "スキップグラム",
+      "meaning": "中心語から周囲語を予測するword2vecモデル。"
+    },
+    {
+      "term": "単語埋め込み",
+      "meaning": "単語をベクトル化する手法。"
+    },
+    {
+      "term": "分散表現",
+      "meaning": "意味的距離が反映されたベクトル表現。"
+    },
+    {
+      "term": "文書要約",
+      "meaning": "文章を短く要約するタスク。"
+    },
+    {
+      "term": "ワンホットベクトル",
+      "meaning": "単語を1次元だけ1にしたベクトル表現。"
+    },
+    {
+      "term": "大規模言語モデル",
+      "meaning": "巨大データで事前学習された生成モデル。"
+    },
+    {
+      "term": "統計的機械翻訳",
+      "meaning": "翻訳確率を統計的に推定する手法。"
+    },
+    {
+      "term": "A-D変換",
+      "meaning": "アナログ信号をデジタル化する処理。"
+    },
+    {
+      "term": "WaveNet",
+      "meaning": "音声生成に特化した深層学習モデル。"
+    },
+    {
+      "term": "音韻",
+      "meaning": "発音の基本単位。"
+    },
+    {
+      "term": "音声合成",
+      "meaning": "音声を人工的に生成する技術。"
+    },
+    {
+      "term": "音声認識",
+      "meaning": "音声をテキストに変換する技術。"
+    },
+    {
+      "term": "音素",
+      "meaning": "言語を構成する最小の音の単位。"
+    },
+    {
+      "term": "隠れマルコフモデル",
+      "meaning": "時系列を扱う確率モデル（HMM）。"
+    },
+    {
+      "term": "高速フーリエ変換",
+      "meaning": "信号を周波数成分に分解するアルゴリズム。"
+    },
+    {
+      "term": "スペクトル包絡",
+      "meaning": "音声の周波数特性を示す形状。"
+    },
+    {
+      "term": "PCM",
+      "meaning": "音声をデジタル化する符号化方式。"
+    },
+    {
+      "term": "フォルマント",
+      "meaning": "音声の共鳴周波数。"
+    },
+    {
+      "term": "MFCC",
+      "meaning": "音声認識で使われる特徴量。"
+    },
+    {
+      "term": "メル尺度",
+      "meaning": "人間の聴覚に基づく周波数スケール。"
+    },
+    {
+      "term": "話者識別",
+      "meaning": "誰の音声かを判定する技術。"
+    },
+    {
+      "term": "CTC",
+      "meaning": "音声と文字列の長さ不一致を扱う教師あり学習手法。"
+    },
+    {
+      "term": "A3C",
+      "meaning": "並列学習を行う強化学習手法。"
+    },
+    {
+      "term": "Agent57",
+      "meaning": "Atariゲームで人間を超えた強化学習モデル。"
+    },
+    {
+      "term": "APE-X",
+      "meaning": "分散型の高速DQN手法。"
+    },
+    {
+      "term": "DQN",
+      "meaning": "深層学習を用いたQ学習モデル。"
+    },
+    {
+      "term": "OpenAI Five",
+      "meaning": "Dota2で世界トップを破った強化学習AI。"
+    },
+    {
+      "term": "PPO",
+      "meaning": "安定した方策勾配法の代表モデル。"
+    },
+    {
+      "term": "Rainbow",
+      "meaning": "複数DQN改良を統合した手法。"
+    },
+    {
+      "term": "RLHF",
+      "meaning": "人間のフィードバックを用いた強化学習。"
+    },
+    {
+      "term": "sim2real",
+      "meaning": "シミュレーション学習を実世界に適用する技術。"
+    },
+    {
+      "term": "AlphaStar",
+      "meaning": "StarCraft IIで人間を超えたAI。"
+    },
+    {
+      "term": "オフライン強化学習",
+      "meaning": "行動データのみで学習する手法。"
+    },
+    {
+      "term": "残差強化学習",
+      "meaning": "既存方策に残差を加えて改善する手法。"
+    },
+    {
+      "term": "状態表現学習",
+      "meaning": "良い状態表現を学習する手法。"
+    },
+    {
+      "term": "ダブルDQN",
+      "meaning": "過大評価問題を解決したDQN改良版。"
+    },
+    {
+      "term": "デュエリングネットワーク",
+      "meaning": "価値関数とアドバンテージを分離した構造。"
+    },
+    {
+      "term": "ドメインランダマイゼーション",
+      "meaning": "環境をランダム化して汎化を高める手法。"
+    },
+    {
+      "term": "ノイジーネットワーク",
+      "meaning": "ノイズを重みに入れて探索する手法。"
+    },
+    {
+      "term": "報酬成形",
+      "meaning": "学習しやすく報酬を調整する手法。"
+    },
+    {
+      "term": "MARL",
+      "meaning": "複数エージェントの強化学習。"
+    },
+    {
+      "term": "連続値制御",
+      "meaning": "連続行動を扱う強化学習。"
+    },
+    {
+      "term": "CycleGAN",
+      "meaning": "ペアなしで画像変換を学習するGAN。"
+    },
+    {
+      "term": "DCGAN",
+      "meaning": "CNNベースの安定したGAN構造。"
+    },
+    {
+      "term": "Diffusion Model",
+      "meaning": "ノイズ除去過程で生成を行うモデル。"
+    },
+    {
+      "term": "NeRF",
+      "meaning": "3Dシーンをニューラル表現で再構築する技術。"
+    },
+    {
+      "term": "Pix2Pix",
+      "meaning": "ペア画像による画像変換モデル。"
+    },
+    {
+      "term": "音声生成",
+      "meaning": "音声を生成するAI技術。"
+    },
+    {
+      "term": "画像生成",
+      "meaning": "画像を生成するAI技術。"
+    },
+    {
+      "term": "GAN",
+      "meaning": "生成器と識別器が競い合う生成モデル。"
+    },
+    {
+      "term": "文章生成",
+      "meaning": "自然言語文章を生成するタスク。"
+    },
+    {
+      "term": "Few-shot",
+      "meaning": "少ないデータで学習する手法。"
+    },
+    {
+      "term": "One-shot",
+      "meaning": "1サンプルで分類が可能になる学習。"
+    },
+    {
+      "term": "自己教師あり学習",
+      "meaning": "ラベルなしデータから特徴を学習する手法。"
+    },
+    {
+      "term": "事前学習",
+      "meaning": "大規模データで学習したモデルを利用すること。"
+    },
+    {
+      "term": "事前学習済みモデル",
+      "meaning": "すでに学習済みのモデル。"
+    },
+    {
+      "term": "破壊的忘却",
+      "meaning": "新しい学習で過去の知識を失う現象。"
+    },
+    {
+      "term": "半教師あり学習",
+      "meaning": "ラベルなしデータを併用する学習手法。"
+    },
+    {
+      "term": "CLIP",
+      "meaning": "画像とテキストを同時に学習するマルチモーダルモデル。"
+    },
+    {
+      "term": "DALL-E",
+      "meaning": "画像生成を行うテキスト→画像モデル。"
+    },
+    {
+      "term": "Flamingo",
+      "meaning": "少数ショット対応のマルチモーダルモデル。"
+    },
+    {
+      "term": "Image Captioning",
+      "meaning": "画像を説明文に変換するタスク。"
+    },
+    {
+      "term": "Text-To-Image",
+      "meaning": "文章から画像を生成するタスク。"
+    },
+    {
+      "term": "Visual Question Answering",
+      "meaning": "画像内容に基づき質問に答えるタスク。"
+    },
+    {
+      "term": "Unified-IO",
+      "meaning": "入力と出力すべてを統一処理する汎用AIモデル。"
+    },
+    {
+      "term": "Zero-shot",
+      "meaning": "学習にないクラスでも推論可能な手法。"
+    },
+    {
+      "term": "基盤モデル",
+      "meaning": "多用途の巨大事前学習モデル。"
+    },
+    {
+      "term": "マルチタスク学習",
+      "meaning": "複数タスクを同時に学習する方法。"
+    },
+    {
+      "term": "CAM",
+      "meaning": "画像の重要領域を可視化する手法。"
+    },
+    {
+      "term": "Grad-CAM",
+      "meaning": "CNNの判断根拠を可視化する技術。"
+    },
+    {
+      "term": "LIME",
+      "meaning": "局所線形モデルで予測根拠を説明する手法。"
+    },
+    {
+      "term": "Permutation Importance",
+      "meaning": "特徴量の重要度を測る手法。"
+    },
+    {
+      "term": "SHAP",
+      "meaning": "特徴が予測に与えた影響をゲーム理論で説明する方法。"
+    },
+    {
+      "term": "説明可能AI",
+      "meaning": "AIの判断根拠を説明する技術群。"
+    },
+    {
+      "term": "エッジAI",
+      "meaning": "デバイス上でAI推論を行う技術。"
+    },
+    {
+      "term": "蒸留",
+      "meaning": "大モデルから小モデルへ知識を移す手法。"
+    },
+    {
+      "term": "宝くじ仮説",
+      "meaning": "良い初期重みを持つ部分ネットが存在するという仮説。"
+    },
+    {
+      "term": "プルーニング",
+      "meaning": "不要な重みやノードを削減する手法。"
+    },
+    {
+      "term": "モデル圧縮",
+      "meaning": "モデルを軽量化する総称。"
+    },
+    {
+      "term": "量子化",
+      "meaning": "重みを低ビット化し軽量化・高速化する手法。"
+    }
+  ]
+}

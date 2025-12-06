@@ -1,4 +1,5 @@
 import { CosmosClient } from '@azure/cosmos';
+import { stripe } from '@/lib/stripe';
 
 /**
  * ユーザー作成
@@ -67,6 +68,122 @@ export const updateUser = async (clerkId: string, newEmail: string) => {
       };
 
       // 置換 (replace) で更新を実施
+      const { resource } = await item.replace(updatedUser);
+      resolve(resource);
+    } catch (error) {
+      console.error(error);
+      reject(error);
+    }
+  });
+};
+
+/**
+ * ユーザー更新
+ *  - subscription開始 or 停止
+ */
+export const updateSubscription = async (
+  clerkId: string,
+  isSubscribed: boolean,
+  subscriptionId?: string | null,
+  subscriptionExpiresAt?: string | null
+) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const cosmosClient = new CosmosClient(
+        process.env.COSMOS_CONNECTION_STRING!
+      );
+      const database = cosmosClient.database(process.env.COSMOS_DATABASE_NAME!);
+      const container = database.container(
+        process.env.COSMOS_CONTAINER_NAME_USER!
+      );
+
+      // 更新対象のアイテムを取得
+      const item = container.item(clerkId, clerkId);
+      const { resource: existingUser } = await item.read();
+
+      if (!existingUser) {
+        // ユーザーが見つからなかった場合
+        throw new Error(`User with id ${clerkId} not found.`);
+      }
+
+      // 更新フィールドをマージ
+      const now = new Date();
+      const expiresAt = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+
+      const expiresAtIso = subscriptionExpiresAt
+        ? new Date(subscriptionExpiresAt).toISOString()
+        : null;
+
+      const updatedUser = {
+        ...existingUser,
+        isSubscribed,
+        subscriptionId: isSubscribed
+          ? subscriptionId ?? existingUser.subscriptionId ?? null
+          : existingUser.subscriptionId ?? null,
+        subscriptionPurchasedAt: isSubscribed
+          ? existingUser.subscriptionPurchasedAt ?? now.toISOString()
+          : null,
+        subscriptionExpiresAt: isSubscribed
+          ? expiresAtIso ?? expiresAt.toISOString()
+          : existingUser.subscriptionExpiresAt ?? null,
+        updatedAt: now.toISOString(),
+      };
+
+      // 置換 (replace) で更新を実施
+      const { resource } = await item.replace(updatedUser);
+      resolve(resource);
+    } catch (error) {
+      console.error(error);
+      reject(error);
+    }
+  });
+};
+
+/**
+ * サブスクリプション解約（自動更新停止）
+ *  - 現在の期限は維持し、isSubscribed を false にする
+ */
+export const cancelSubscription = async (clerkId: string) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const cosmosClient = new CosmosClient(
+        process.env.COSMOS_CONNECTION_STRING!
+      );
+      const database = cosmosClient.database(process.env.COSMOS_DATABASE_NAME!);
+      const container = database.container(
+        process.env.COSMOS_CONTAINER_NAME_USER!
+      );
+
+      const item = container.item(clerkId, clerkId);
+      const { resource: existingUser } = await item.read();
+
+      if (!existingUser) {
+        throw new Error(`User with id ${clerkId} not found.`);
+      }
+
+      const now = new Date();
+
+      // Stripeの自動更新を停止（サブスクリプションIDがある場合のみ）
+      if (existingUser.subscriptionId) {
+        try {
+          await stripe.subscriptions.update(existingUser.subscriptionId, {
+            cancel_at_period_end: true,
+          });
+        } catch (stripeError) {
+          console.error('Stripe cancel error', stripeError);
+        }
+      }
+
+      const updatedUser = {
+        ...existingUser,
+        isSubscribed: false,
+        subscriptionCancelledAt: now.toISOString(),
+        // 現在の期限は維持（null の場合は null のまま）
+        subscriptionExpiresAt: existingUser.subscriptionExpiresAt ?? null,
+        subscriptionId: existingUser.subscriptionId ?? null,
+        updatedAt: now.toISOString(),
+      };
+
       const { resource } = await item.replace(updatedUser);
       resolve(resource);
     } catch (error) {
