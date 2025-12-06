@@ -19,42 +19,12 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { updateSubscription } from '@/lib/cosmos/user';
-import { stripe } from '@/lib/stripe';
 
 import RedirectToDashboard from './redirect-to-dashboard';
 
-export const dynamic = 'force-dynamic';
+export const dynamic = 'force-static';
 
-type Props = {
-  searchParams: Promise<{
-    session_id?: string;
-  }>;
-};
-
-export default async function Success({ searchParams }: Props) {
-  const { session_id } = await searchParams;
-  const sessionId = session_id;
-
-  if (sessionId) {
-    try {
-      const session = await stripe.checkout.sessions.retrieve(sessionId);
-      if (
-        session.status === 'complete' &&
-        session.payment_status === 'paid' &&
-        typeof session.metadata?.clerkId === 'string'
-      ) {
-        const subscriptionId =
-          typeof session.subscription === 'string'
-            ? session.subscription
-            : session.subscription?.id ?? null;
-        await updateSubscription(session.metadata.clerkId, true, subscriptionId);
-      }
-    } catch (error) {
-      console.error('Failed to finalize subscription after checkout', error);
-    }
-  }
-
+export default async function Success() {
   return (
     <div className="relative isolate min-h-screen overflow-hidden bg-linear-to-b from-background via-background to-muted/50 py-16">
       <div className="pointer-events-none absolute inset-x-0 -top-32 h-72 bg-[radial-gradient(circle_at_center,var(--color-primary)/0.14,transparent_55%)]" />

@@ -84,7 +84,8 @@ export const updateUser = async (clerkId: string, newEmail: string) => {
 export const updateSubscription = async (
   clerkId: string,
   isSubscribed: boolean,
-  subscriptionId?: string | null
+  subscriptionId?: string | null,
+  subscriptionExpiresAt?: string | null
 ) => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -109,13 +110,21 @@ export const updateSubscription = async (
       const now = new Date();
       const expiresAt = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
 
+      const expiresAtIso = subscriptionExpiresAt
+        ? new Date(subscriptionExpiresAt).toISOString()
+        : null;
+
       const updatedUser = {
         ...existingUser,
         isSubscribed,
-        subscriptionId: isSubscribed ? subscriptionId ?? existingUser.subscriptionId ?? null : null,
-        subscriptionPurchasedAt: isSubscribed ? now.toISOString() : null,
+        subscriptionId: isSubscribed
+          ? subscriptionId ?? existingUser.subscriptionId ?? null
+          : existingUser.subscriptionId ?? null,
+        subscriptionPurchasedAt: isSubscribed
+          ? existingUser.subscriptionPurchasedAt ?? now.toISOString()
+          : null,
         subscriptionExpiresAt: isSubscribed
-          ? expiresAt.toISOString()
+          ? expiresAtIso ?? expiresAt.toISOString()
           : existingUser.subscriptionExpiresAt ?? null,
         updatedAt: now.toISOString(),
       };
