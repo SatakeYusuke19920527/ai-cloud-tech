@@ -64,42 +64,31 @@ export default async function Drill() {
           各章20問の練習問題。テスト済みの章には正答率と最終受験日を表示します。
         </p>
       </div>
-
+      
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {drillChapters.map((chapter, index) => {
-          const result = latest[chapter.slug];
-          const lastTaken = formatDate(result?.performedAt);
-          return (
-            <Link
-              key={chapter.slug}
-              href={`/dashboard/drill/${chapter.slug}`}
-              className="group"
-            >
-              <Card className="h-full border border-border bg-card transition hover:-translate-y-1 hover:border-primary/50">
-                <CardHeader className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Badge variant="outline">Chapter {index + 1}</Badge>
-                    <ArrowRight className="h-4 w-4 text-muted-foreground transition group-hover:text-primary" />
-                  </div>
-                  <CardTitle className="text-lg">{chapter.title}</CardTitle>
-                  <CardDescription>{chapter.description}</CardDescription>
-                  <div className="text-sm text-foreground">
-                    {result ? (
-                      <>
-                        <p className="font-semibold">正答率 {result.score}%</p>
-                        <p className="text-xs text-muted-foreground">
-                          最終受験日: {lastTaken ?? '取得できませんでした'}
-                        </p>
-                      </>
-                    ) : (
-                      <p className="text-sm text-muted-foreground">未受験</p>
-                    )}
-                  </div>
-                </CardHeader>
-              </Card>
-            </Link>
-          );
-        })}
+        {drillChapters.map((chapter, index) => (
+          <Link
+            key={chapter.slug}
+            href={`/dashboard/drill/${chapter.slug}`}
+            className="group"
+          >
+            <Card className="h-full border border-border bg-card transition hover:-translate-y-1 hover:border-primary/50">
+              <CardHeader className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Badge variant="outline">Chapter {index + 1}</Badge>
+                  <ArrowRight className="h-4 w-4 -muted-foreground transition group-hover:text-primary" />
+                </div>
+                <CardTitle className="text-lg">{chapter.title}</CardTitle>
+                <CardDescription>{chapter.description}</CardDescription>
+                {typeof chapter.score === 'number' && (
+                  <p className="text-sm font-semibold text-foreground">
+                    正答率 {chapter.score}%
+                  </p>
+                )}
+              </CardHeader>
+            </Card>
+          </Link>
+        ))}
       </div>
     </div>
   );

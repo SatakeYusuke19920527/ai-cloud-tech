@@ -18,22 +18,47 @@ const normalizeHeadings = (text: string) => {
   return text.replace(/^(#{1,6})(?:[ \t]|\u3000)+/gm, '$1 ');
 };
 
+const createIdFromChildren = (children: React.ReactNode) => {
+  const text = String(children)
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, "-")
+    .replace(/[^\w-]/g, "");
+  return text;
+};
+
 const markdownComponents: Components = {
-  h1: (props) => (
-    <h1
-      className="mt-10 border-b border-border pb-3 text-3xl font-bold leading-tight tracking-tight text-foreground first:mt-0"
-      {...props}
-    />
-  ),
-  h2: (props) => (
-    <h2
-      className="mt-8 border-b border-border/70 pb-2 text-2xl font-semibold leading-tight tracking-tight text-foreground first:mt-0"
-      {...props}
-    />
-  ),
-  h3: (props) => (
-    <h3 className="mt-6 text-xl font-semibold leading-snug tracking-tight text-foreground first:mt-0" {...props} />
-  ),
+    h1: ({ children, ...props }) => {
+    const id = createIdFromChildren(children);
+    return (
+      <h1
+        id={id}
+        className="mt-10 border-b border-border pb-3 text-3xl font-bold leading-tight tracking-tight text-foreground first:mt-0"
+        {...props}
+      >
+        {children}
+      </h1>
+    );
+  },
+    h2: ({ children, ...props }) => {
+    const id = createIdFromChildren(children);
+    return (
+      <h2
+        id={id}
+        className="mt-8 border-b border-border/70 pb-2 text-2xl font-semibold leading-tight tracking-tight text-foreground first:mt-0" {...props}>
+        {children}
+      </h2>
+    );
+  },
+    h3: ({ children, ...props }) => {
+    const id = createIdFromChildren(children);
+    return (
+      <h3 id={id}
+        className="mt-6 text-xl font-semibold leading-snug tracking-tight text-foreground first:mt-0"{...props}>
+        {children}
+      </h3>
+    );
+  },
   p: (props) => <p className="leading-7 text-foreground" {...props} />,
   a: ({ href, ...props }) => (
     <a
