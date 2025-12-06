@@ -33,3 +33,14 @@ export type DrillChapter = {
   questions: MCQQuestion[];
   score?: number; // percentage when taken
 };
+
+export type DrillType = {
+  chapterSlug: string;
+  questionIndex: number;
+  prompt: string;
+  choices: [string, string, string, string];
+  answerIndex: number;
+  selectedIndex: number;
+  correct: boolean;
+  explanation?: string;
+};

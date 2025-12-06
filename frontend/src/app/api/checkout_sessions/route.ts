@@ -2,7 +2,6 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
-import { updateSubscription } from '@/lib/cosmos/user';
 import { stripe } from '../../../lib/stripe';
 
 export async function POST(req: NextRequest) {
@@ -42,8 +41,6 @@ export async function POST(req: NextRequest) {
       automatic_tax: { enabled: true },
     });
 
-    // CosmosDBのユーザー情報を更新してサブスクリプション登録日をセット
-    await updateSubscription(clerkId, true);
     return NextResponse.redirect(session.url, 303);
   } catch (err: any) {
     return NextResponse.json(
