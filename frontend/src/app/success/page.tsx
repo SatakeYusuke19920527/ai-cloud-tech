@@ -22,6 +22,8 @@ import { Separator } from '@/components/ui/separator';
 
 import RedirectToDashboard from './redirect-to-dashboard';
 
+export const dynamic = 'force-static';
+
 export default async function Success() {
   return (
     <div className="relative isolate min-h-screen overflow-hidden bg-linear-to-b from-background via-background to-muted/50 py-16">

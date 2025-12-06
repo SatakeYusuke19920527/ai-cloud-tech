@@ -1,3 +1,7 @@
+/* eslint-disable react-hooks/rules-of-hooks */
+'use client';
+
+import { SignInButton, SignUpButton, useAuth } from '@clerk/nextjs';
 import { Badge } from '@/components/ui/badge';
 import {
   Card,
@@ -6,6 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
 import {
@@ -133,6 +138,46 @@ const notes = [
 ];
 
 export default function Dashboard() {
+  const { userId } = useAuth();
+
+  if (!userId) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-8 rounded-3xl border border-dashed border-muted-foreground/40 bg-card/60 px-8 py-16 text-center">
+        <div className="space-y-2">
+          <p className="text-sm font-semibold uppercase tracking-[0.3em] text-muted-foreground">
+            Dashboard
+          </p>
+          <h1 className="text-2xl font-semibold text-foreground">
+            ダッシュボードを利用するにはログインが必要です
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            ログインまたは新規登録すると、進捗サマリーや演習ドリルが表示されます。
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center justify-center gap-4">
+          <SignInButton
+            mode="modal"
+            forceRedirectUrl="/dashboard"
+            fallbackRedirectUrl="/dashboard"
+          >
+            <Button size="lg" className="px-6">
+              ログイン
+            </Button>
+          </SignInButton>
+          <SignUpButton
+            mode="modal"
+            forceRedirectUrl="/dashboard"
+            fallbackRedirectUrl="/dashboard"
+          >
+            <Button size="lg" variant="outline" className="px-6">
+              新規登録
+            </Button>
+          </SignUpButton>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-8">
       <header className="flex flex-col gap-3">
