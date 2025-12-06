@@ -26,7 +26,21 @@ const normalizeHeadings = (text: string) => {
   return text.replace(/^(#{1,6})(?:[ \t]|\u3000)+/gm, '$1 ');
 };
 
+const parseImageSize = (rawSrc: string) => {
+  const sizePattern = /\s*=?(\d*)x(\d*)$/;
+  const match = rawSrc.match(sizePattern);
 
+  if (!match) {
+    return { src: rawSrc.trim(), width: undefined, height: undefined };
+  }
+
+  const width = match[1] ? Number(match[1]) : undefined;
+  const height = match[2] ? Number(match[2]) : undefined;
+
+  const cleanSrc = rawSrc.replace(sizePattern, '').trim();
+
+  return { src: cleanSrc, width, height };
+};
 
 const resolveImagePath = (src?: string): string => {
   if (!src) return '';
@@ -140,14 +154,35 @@ const markdownComponents: Components = {
   },
   // 画像表示させたいのならimagesに画像を追加し、localImagesに追加してください
   img: ({ src, alt, ...props }) => {
-    const imageSrc = typeof src === 'string' ? resolveImagePath(src) : '';
-    
+    let realSrc = "";
+    let width: string | undefined = undefined;
+    let height: string | undefined = undefined;
+  
+    if (typeof src === "string") {
+      // サイズ指定パターンを抽出 例: "buri.png =250x150"
+      const sizeMatch = src.match(/^(.*?)\s*=\s*(\d*)x(\d*)$/);
+  
+      if (sizeMatch) {
+        const [, path, w, h] = sizeMatch;
+        realSrc = resolveImagePath(path.trim());
+  
+        if (w) width = w + "px";
+        if (h) height = h + "px";
+      } else {
+        realSrc = resolveImagePath(src);
+      }
+    }
+  
     return (
       <img
-        alt={alt ?? ''}
-        className="my-6 w-full rounded-lg border border-border bg-muted object-contain"
+        alt={alt ?? ""}
+        className="my-6 rounded-lg border border-border bg-muted object-contain"
         loading="lazy"
-        src={imageSrc}
+        src={realSrc}
+        style={{
+          width: width,
+          height: height,
+        }}
         {...props}
       />
     );

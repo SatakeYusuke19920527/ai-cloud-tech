@@ -76,8 +76,9 @@ AI はブームと冬の時代を繰り返し、現在のディープラーニ�
 test;
 ```
 
-## ここに画像表示
+## ここに画像表示 
 ![](buri.png)
+![](buri.png=100x)
 
 $$
 e^{i\theta} = \cos\theta + i\sin\theta
