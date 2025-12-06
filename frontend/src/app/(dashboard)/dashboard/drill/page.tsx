@@ -25,7 +25,7 @@ export default function Drill() {
               <CardHeader className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Badge variant="outline">Chapter {index + 1}</Badge>
-                  <ArrowRight className="h-4 w-4 text-muted-foreground transition group-hover:text-primary" />
+                  <ArrowRight className="h-4 w-4 -muted-foreground transition group-hover:text-primary" />
                 </div>
                 <CardTitle className="text-lg">{chapter.title}</CardTitle>
                 <CardDescription>{chapter.description}</CardDescription>
