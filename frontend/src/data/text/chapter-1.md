@@ -76,6 +76,9 @@ AI はブームと冬の時代を繰り返し、現在のディープラーニ�
 test;
 ```
 
+## ここに画像表示
+![](/frontend/src/data/text/images/ChatGPT_Image_2025329_20_09_00.png)
+
 $$
 e^{i\theta} = \cos\theta + i\sin\theta
 $$
@@ -83,8 +86,10 @@ $$
 > 引用文
 > 引用文
 
+
 ---
 
 :::message
 メッセージをここに
 :::
+
