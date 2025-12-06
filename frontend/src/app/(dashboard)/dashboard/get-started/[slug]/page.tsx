@@ -3,10 +3,10 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { getChapterBySlug, chapters } from "@/lib/chapter-data";
 import { MarkdownWithTOC } from "@/components/markdown/markdown-toc";
-import { Markdown } from '@/components/markdown/markdown';
-import { Separator } from '@/components/ui/separator';
+import { Separator } from "@/components/ui/separator";
+import { MarkdownBody, TOC } from "@/components/markdown/markdown-toc";
 
-  export default async function ChapterPage({
+export default async function ChapterPage({
   params,
 }: {
   params: Promise<{ slug: string }>;
@@ -20,9 +20,8 @@ import { Separator } from '@/components/ui/separator';
 
   return (
 
-    
-    <div className="w-full py-10 sm:py-12">
-      <main className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 sm:px-6 md:px-10">
+<div className="w-full py-10 sm:py-12">
+      <main className="mx-auto w-full max-w-6xl px-4 sm:px-6 md:px-10 flex flex-col gap-8">
         {/* 上部タイトル */}
         <div className="space-y-2">
           <Link
@@ -40,16 +39,30 @@ import { Separator } from '@/components/ui/separator';
 
         <Separator />
 
-        {/* 目次付き Markdown */}
-        <section className="bg-card p-6 sm:p-8">
-          <MarkdownWithTOC content={chapter.content} />
-        </section>
+        {/* ---- ここから2カラム ---- */}
+          <div className="relative flex w-full gap-8">
+
+            {/* 本文ボックス */}
+            <div className="flex-1">
+              <section className="bg-card p-6 sm:p-8">
+                <MarkdownBody content={chapter.content} />
+              </section>
+            </div>
+
+            {/* 目次ボックス（右側固定） */}
+             <aside className="hidden lg:block w-64 sticky top-[4rem] self-start h-[calc(100vh-4rem)] overflow-y-auto">
+              <TOC content={chapter.content} />
+            </aside>
+
+          </div>
+
       </main>
     </div>
   );
 }
 
-// ビルド時に全章ページ生成
+
+
 export async function generateStaticParams() {
   return chapters.map((chapter) => ({ slug: chapter.slug }));
 }
