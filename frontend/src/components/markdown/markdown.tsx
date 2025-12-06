@@ -4,6 +4,7 @@ import type { Components } from 'react-markdown';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import React from 'react';
+import buri from '@/data/text/images/buri.png';
 
 import { cn } from '@/lib/utils';
 
@@ -12,51 +13,28 @@ type MarkdownProps = {
   className?: string;
 };
 
+const localImages: Record<string, string> = {
+  'buri.png': buri.src,
+};
+
 type CodeProps = React.ComponentPropsWithoutRef<'code'> & {
   inline?: boolean;
 };
 
 const normalizeHeadings = (text: string) => {
-  // Zenn 風の見出しを崩さず、全角スペースを含む見出し行を正規化
+
   return text.replace(/^(#{1,6})(?:[ \t]|\u3000)+/gm, '$1 ');
 };
 
-// 画像パスを解決する関数
-const resolveImagePath = (src: string | undefined): string => {
-  if (!src || typeof src !== 'string') {
-    return '';
+
+const resolveImagePath = (src?: string): string => {
+  if (!src) return '';
+
+  if (localImages[src]) {
+    return localImages[src];
   }
 
-  // 絶対URL（http/https）の場合はそのまま使用
-  if (src.startsWith('http://') || src.startsWith('https://')) {
-    return src;
-  }
-
-  // / から始まるパスはそのまま使用（publicフォルダからの参照）
-  // 既に /images/ で始まっている場合はそのまま返す
-  if (src.startsWith('/')) {
-    return src;
-  }
-
-  // 相対パス（./image/...）を /images/... に変換
-  if (src.startsWith('./image/')) {
-    return src.replace('./image/', '/images/');
-  }
-
-  // 相対パス（./images/...）は既に /images/ に変換済みとして扱う
-  if (src.startsWith('./images/')) {
-    return src.replace('./images/', '/images/');
-  }
-
-  // 相対パス（./）を /images/ に変換
-  if (src.startsWith('./')) {
-    return src.replace('./', '/images/');
-  }
-
-  // その他の相対パスは /images/ を前置（ただし既に /images/ で始まっていない場合のみ）
-  if (!src.startsWith('/images/')) {
-    return `/images/${src}`;
-  }
+  if (src.startsWith('http') || src.startsWith('/')) return src;
 
   return src;
 };
@@ -133,11 +111,11 @@ const markdownComponents: Components = {
       </pre>
     );
   },
+  // 画像表示させたいのならimagesに画像を追加し、localImagesに追加してください
   img: ({ src, alt, ...props }) => {
     const imageSrc = typeof src === 'string' ? resolveImagePath(src) : '';
     
     return (
-      // eslint-disable-next-line @next/next/no-img-element
       <img
         alt={alt ?? ''}
         className="my-6 w-full rounded-lg border border-border bg-muted object-contain"

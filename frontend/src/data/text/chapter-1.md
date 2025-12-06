@@ -77,7 +77,7 @@ test;
 ```
 
 ## ここに画像表示
-![](/frontend/src/data/text/images/ChatGPT_Image_2025329_20_09_00.png)
+![](buri.png)
 
 $$
 e^{i\theta} = \cos\theta + i\sin\theta
