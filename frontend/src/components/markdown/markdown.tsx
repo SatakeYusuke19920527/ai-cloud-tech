@@ -1,6 +1,10 @@
+'use client';
+
 import type { Components } from 'react-markdown';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import React from 'react';
+import buri from '@/data/text/images/buri.png';
 
 import { cn } from '@/lib/utils';
 
@@ -9,13 +13,45 @@ type MarkdownProps = {
   className?: string;
 };
 
+const localImages: Record<string, string> = {
+  'buri.png': buri.src,
+};
+
 type CodeProps = React.ComponentPropsWithoutRef<'code'> & {
   inline?: boolean;
 };
 
 const normalizeHeadings = (text: string) => {
-  // Zenn 風の見出しを崩さず、全角スペースを含む見出し行を正規化
+
   return text.replace(/^(#{1,6})(?:[ \t]|\u3000)+/gm, '$1 ');
+};
+
+const parseImageSize = (rawSrc: string) => {
+  const sizePattern = /\s*=?(\d*)x(\d*)$/;
+  const match = rawSrc.match(sizePattern);
+
+  if (!match) {
+    return { src: rawSrc.trim(), width: undefined, height: undefined };
+  }
+
+  const width = match[1] ? Number(match[1]) : undefined;
+  const height = match[2] ? Number(match[2]) : undefined;
+
+  const cleanSrc = rawSrc.replace(sizePattern, '').trim();
+
+  return { src: cleanSrc, width, height };
+};
+
+const resolveImagePath = (src?: string): string => {
+  if (!src) return '';
+
+  if (localImages[src]) {
+    return localImages[src];
+  }
+
+  if (src.startsWith('http') || src.startsWith('/')) return src;
+
+  return src;
 };
 
 const createIdFromChildren = (children: React.ReactNode) => {
@@ -60,6 +96,7 @@ const markdownComponents: Components = {
     );
   },
   p: (props) => <p className="leading-7 text-foreground" {...props} />,
+
   a: ({ href, ...props }) => (
     <a
       className="font-semibold text-primary underline decoration-2 underline-offset-4 transition hover:decoration-4"
@@ -115,15 +152,41 @@ const markdownComponents: Components = {
       </pre>
     );
   },
-  img: ({ alt, ...props }) => (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      alt={alt ?? ''}
-      className="my-6 w-full rounded-lg border border-border bg-muted object-contain"
-      loading="lazy"
-      {...props}
-    />
-  ),
+  // 画像表示させたいのならimagesに画像を追加し、localImagesに追加してください
+  img: ({ src, alt, ...props }) => {
+    let realSrc = "";
+    let width: string | undefined = undefined;
+    let height: string | undefined = undefined;
+  
+    if (typeof src === "string") {
+      // サイズ指定パターンを抽出 例: "buri.png =250x150"
+      const sizeMatch = src.match(/^(.*?)\s*=\s*(\d*)x(\d*)$/);
+  
+      if (sizeMatch) {
+        const [, path, w, h] = sizeMatch;
+        realSrc = resolveImagePath(path.trim());
+  
+        if (w) width = w + "px";
+        if (h) height = h + "px";
+      } else {
+        realSrc = resolveImagePath(src);
+      }
+    }
+  
+    return (
+      <img
+        alt={alt ?? ""}
+        className="my-6 rounded-lg border border-border bg-muted object-contain"
+        loading="lazy"
+        src={realSrc}
+        style={{
+          width: width,
+          height: height,
+        }}
+        {...props}
+      />
+    );
+  },
   strong: (props) => <strong className="font-semibold text-foreground" {...props} />,
   em: (props) => <em className="text-foreground" {...props} />,
 };
