@@ -22,7 +22,7 @@ export default function DashboardLayout({
                 href="/dashboard"
                 className="group inline-flex cursor-pointer items-center gap-2"
               >
-                <span className="text-lg font-semibold tracking-tight text-foreground transition group-hover:text-indigo-500">
+                <span className="text-lg font-semibold tracking-tight text-transparent bg-gradient-to-r from-[#5b4bff] via-[#8a5cff] via-[#a855f7] via-[#f97316] to-[#6d28d9] bg-clip-text transition duration-200 group-hover:drop-shadow-[0_0_10px_rgba(126,87,194,0.6)]">
                   AI Cloud Tech
                 </span>
               </Link>
