@@ -5,13 +5,28 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import React from 'react';
 import buri from '@/data/text/images/buri.png';
-
+import remarkDirective from "remark-directive";
+import { visit } from "unist-util-visit";
 import { cn } from '@/lib/utils';
 
 type MarkdownProps = {
   content: string;
   className?: string;
 };
+
+function remarkCustomDirective() {
+  return (tree: any) => {
+    visit(tree, (node) => {
+      if (
+        node.type === "containerDirective" ||
+        node.type === "leafDirective"
+      ) {
+        node.data = node.data || {};
+        node.data.hName = node.name; // ← message
+      }
+    });
+  };
+}
 
 const localImages: Record<string, string> = {
   'buri.png': buri.src,
@@ -189,15 +204,44 @@ const markdownComponents: Components = {
   },
   strong: (props) => <strong className="font-semibold text-foreground" {...props} />,
   em: (props) => <em className="text-foreground" {...props} />,
+
 };
+
+const directiveComponents = {
+  message: ({ children }: { children: React.ReactNode }) => (
+    <div className="my-6 rounded-lg border border-blue-300 bg-blue-50 p-4 text-blue-900">
+      {children}
+    </div>
+  ),
+
+  warning: ({ children }: { children: React.ReactNode }) => (
+    <div className="my-6 rounded-lg border border-yellow-300 bg-yellow-50 p-4 text-yellow-900">
+      {children}
+    </div>
+  ),
+
+  success: ({ children }: { children: React.ReactNode }) => (
+    <div className="my-6 rounded-lg border border-green-300 bg-green-50 p-4 text-green-900">
+      {children}
+    </div>
+  ),
+
+  alert: ({ children }: { children: React.ReactNode }) => (
+  <div className="my-6 rounded-lg border border-red-300 bg-red-50 p-4 text-red-900">
+    {children}
+  </div>
+
+  ),
+};
+
 
 export function Markdown({ content, className }: MarkdownProps) {
   const normalized = normalizeHeadings(content);
 
   return (
     <ReactMarkdown
-      remarkPlugins={[remarkGfm]}
-      components={markdownComponents}
+      remarkPlugins={[remarkGfm, remarkDirective, remarkCustomDirective]}
+      components={{ ...markdownComponents, ...directiveComponents }}
       className={cn(
         'markdown-body text-[15px] leading-7 text-foreground [&>*+*]:mt-5 [&>*:first-child]:mt-0',
         className
