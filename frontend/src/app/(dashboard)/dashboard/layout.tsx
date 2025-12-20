@@ -43,7 +43,7 @@ export default function DashboardLayout({
           </aside>
 
           {/* main */}
-          <main className="min-w-0 w-full min-h-[calc(100vh-4rem)] overflow-x-hidden bg-muted px-6 py-6 lg:px-10 lg:py-8">
+          <main className="min-w-0 w-full min-h-[calc(100vh-4rem)] bg-muted px-6 py-6 lg:px-10 lg:py-8">
             {children}
           </main>
         </div>
