@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { Markdown as BaseMarkdown } from "./markdown";
 
 type TOCItem = { id: string; text: string; level: number };
@@ -22,7 +22,7 @@ function useToc(content: string) {
       let slug = rawText
         .toLowerCase()
         .replace(/\s+/g, "-")
-        .replace(/[^\w-]/g, "");
+        .replace(/[^\w-ぁ-んァ-ン一-龠]/g, "");
 
       if (!slug) slug = "section";
 
@@ -47,45 +47,46 @@ function useToc(content: string) {
 }
 
 /* ------------------------------
-   ① 本文だけ表示
+   ① 本文
 ------------------------------ */
 export function MarkdownBody({ content }: { content: string }) {
   return <BaseMarkdown content={content} className="prose" />;
 }
 
 /* ------------------------------
-   ② 目次だけ表示（右側用）
+   ② Zenn風 目次（完成版）
 ------------------------------ */
-export function TOC({
-  content,
-}: {
-  content: string;
-}) {
+export function TOC({ content }: { content: string }) {
   const toc = useToc(content);
-  const [activeId, setActiveId] = useState<string>("");
+  const [activeId, setActiveId] = useState("");
 
-  const observer = useRef<IntersectionObserver | null>(null);
-
-  // スクロール連動
+  // ✅ Zenn方式スクロール追従
   useEffect(() => {
-    const elements = toc.map((item) => document.getElementById(item.id));
-    if (!elements.length) return;
+    const onScroll = () => {
+      let currentId = "";
 
-    observer.current = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setActiveId(entry.target.id);
-            history.replaceState(null, "", `#${entry.target.id}`);
-          }
-        });
-      },
-      { rootMargin: "0px 0px -70% 0px", threshold: 0.1 }
-    );
+      for (const item of toc) {
+        const el = document.getElementById(item.id);
+        if (!el) continue;
 
-    elements.forEach((el) => el && observer.current?.observe(el));
+        const rect = el.getBoundingClientRect();
 
-    return () => observer.current?.disconnect();
+        // ★ Zennと同じ判定
+        if (rect.top <= 120) {
+          currentId = item.id;
+        }
+      }
+
+      if (currentId) {
+        setActiveId(currentId);
+        history.replaceState(null, "", `#${currentId}`);
+      }
+    };
+
+    window.addEventListener("scroll", onScroll);
+    onScroll();
+
+    return () => window.removeEventListener("scroll", onScroll);
   }, [toc]);
 
   const handleClick = (id: string) => (e: React.MouseEvent) => {
@@ -99,30 +100,52 @@ export function TOC({
   };
 
   return (
-    // <nav className="sticky top-28 w-full h-max p-4 bg-gray-50 rounded-md border border-gray-200">
-    <nav className="sticky top-24 w-64 h-max p-4 bg-gray-50 rounded-md border border-gray-200">  
-      <h2 className="font-semibold mb-2">目次</h2>
-      <ul className="space-y-1">
-        {toc.map((item) => (
-          <li key={item.id} className={`pl-${(item.level - 1) * 4}`}>
-            <a
-              href={`#${item.id}`}
-              onClick={handleClick(item.id)}
-              className={`hover:underline ${
-                activeId === item.id ? "text-black font-semibold" : "text-gray-800"
-              }`}
-            >
-              {item.text}
-            </a>
-          </li>
-        ))}
+    <nav className="w-64">
+<p className="mb-3 text-sm font-medium text-foreground">
+  目次
+</p>
+      <ul className="space-y-0.5 border-l border-gray-200 pl-3">
+        {toc.map((item) => {
+  const isMain = item.level <= 2; // # or ##
+  const isActive = activeId === item.id;
+
+  return (
+    <li
+      key={item.id}
+      className="relative"
+      style={{ paddingLeft: `${(item.level - 1) * 12}px` }}
+    >
+      <a
+        href={`#${item.id}`}
+        onClick={handleClick(item.id)}
+        className={`
+          block py-1 text-sm transition-colors
+          ${isMain ? "font-semibold" : "font-normal"}
+          ${
+            isActive
+              ? "text-gray-900"
+              : "text-gray-500 hover:text-gray-900"
+          }
+        `}
+      >
+        {item.text}
+
+        {/* 左ライン（アクティブ時） */}
+        {isActive && (
+          <span className="absolute -left-3 top-1/2 -translate-y-1/2 h-4 w-[2px] bg-sky-500 rounded" />
+        )}
+      </a>
+    </li>
+  );
+})}
+
       </ul>
     </nav>
   );
 }
 
 /* ------------------------------
-   ③ 従来どおり「左：本文 / 右：TOC」
+   ③ 左：本文 / 右：TOC
 ------------------------------ */
 export function MarkdownWithTOC({ content }: { content: string }) {
   return (

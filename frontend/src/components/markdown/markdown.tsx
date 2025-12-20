@@ -74,7 +74,7 @@ const createIdFromChildren = (children: React.ReactNode) => {
     .trim()
     .toLowerCase()
     .replace(/\s+/g, "-")
-    .replace(/[^\w-]/g, "");
+    .replace(/[^\w-ぁ-んァ-ン一-龠]/g, "");
   return text;
 };
 
