@@ -27,6 +27,8 @@ import {
   Sparkles,
   Trophy,
 } from 'lucide-react';
+import { useEffect } from 'react';
+import { useState } from 'react';
 
 const paceSummary = [
   { label: '達成率', value: '68%', detail: '総学習計画に対して' },
@@ -137,8 +139,61 @@ const notes = [
   },
 ];
 
+type DrillResult = {
+  score: number;
+  performedAt: string;
+};
+
+type ApiResponse = {
+  userId: string;
+  results: Record<string, DrillResult>;
+};
+
+
+
 export default function Dashboard() {
   const { userId } = useAuth();
+  const [results, setResults] = useState<Record<string, DrillResult>>({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+
+  useEffect(() => {
+    const fetchResults = async () => {
+      try {
+        const res = await fetch('/api/drill/result', {
+          method: 'GET',
+          cache: 'no-store',
+        });
+
+        if (!res.ok) {
+          throw new Error('Failed to fetch drill results');
+        }
+
+        const data = await res.json();
+        setResults(data.results);
+      } catch (e) {
+        console.error(e);
+        setError('ドリル結果の取得に失敗しました');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchResults();
+  }, []);
+
+  
+  if (loading) {
+    return <p>読み込み中...</p>;
+  }
+
+  if (error) {
+    return <p className="text-red-500">{error}</p>;
+  }
+
+  const entries = Object.entries(results);
+
 
   if (!userId) {
     return (
@@ -649,6 +704,25 @@ export default function Dashboard() {
           </CardContent>
         </Card>
       </div>
+      {/* 最新ドリル結果 */}
+      <h2 className="text-xl font-bold mb-4">最新ドリル結果</h2>
+
+      <ul className="space-y-2">
+        {entries.map(([chapterSlug, result]) => (
+          <li
+            key={chapterSlug}
+            className="rounded border p-3"
+          >
+            <div className="font-semibold">
+              チャプター: {chapterSlug}
+            </div>
+            <div>スコア: {result.score}</div>
+            <div className="text-sm text-gray-500">
+              実施日: {new Date(result.performedAt).toLocaleString()}
+            </div>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
