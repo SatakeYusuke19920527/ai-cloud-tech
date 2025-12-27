@@ -16,8 +16,9 @@ const DashboardNav = () => {
             key={item.href}
             variant={pathname === item.href ? 'secondary' : 'ghost'}
             className={cn(
-              'justify-start',
-              pathname === item.href && 'bg-accent'
+              'justify-start transition-colors',
+              'hover:text-[#7c3aed] hover:bg-[#7c3aed0d]',
+              pathname === item.href && 'bg-[#f3e8ff] text-[#7c3aed] border border-[#e0c3ff]'
             )}
             asChild
           >
