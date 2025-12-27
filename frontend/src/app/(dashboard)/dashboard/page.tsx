@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+import { Spinner } from '@/components/ui/spinner';
 import { cn } from '@/lib/utils';
 import {
   ArrowDownRight,
@@ -185,7 +186,11 @@ export default function Dashboard() {
 
   
   if (loading) {
-    return <p>読み込み中...</p>;
+    return (
+      <div className="flex items-center justify-center py-10">
+        <Spinner className="h-6 w-6 text-muted-foreground" />
+      </div>
+    );
   }
 
   if (error) {
