@@ -163,6 +163,7 @@ test;
 ## ここに画像表示 
 ![](buri.png)
 ![](buri.png=100x)
+![](chinese_room.png)
 
 $$
 e^{i\theta} = \cos\theta + i\sin\theta
