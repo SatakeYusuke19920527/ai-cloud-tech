@@ -119,4 +119,22 @@
   body {
     @apply bg-background text-foreground;
   }
+  a {
+    @apply transition-colors;
+  }
+  a:hover {
+    color: #7c3aed;
+  }
+
+  /* Card hover accents */
+  [data-slot="card"] {
+    @apply transition-colors duration-200;
+  }
+  [data-slot="card"]:hover {
+    border-color: #7c3aed !important;
+    box-shadow: 0 10px 30px -12px rgba(124, 58, 237, 0.35);
+  }
+  [data-slot="card"]:hover [data-slot="card-title"] {
+    color: #7c3aed;
+  }
 }

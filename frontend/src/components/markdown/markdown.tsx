@@ -5,6 +5,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import React from 'react';
 import buri from '@/data/text/images/buri.png';
+import chineseroom from '@/data/text/images/chinese_room.png';
 import remarkDirective from "remark-directive";
 import { visit } from "unist-util-visit";
 import { cn } from '@/lib/utils';
@@ -30,6 +31,7 @@ function remarkCustomDirective() {
 
 const localImages: Record<string, string> = {
   'buri.png': buri.src,
+  'chinese_room.png': chineseroom.src,
 };
 
 type CodeProps = React.ComponentPropsWithoutRef<'code'> & {
