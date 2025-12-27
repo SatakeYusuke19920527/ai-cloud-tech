@@ -1,6 +1,7 @@
 import { NavItem } from '@/types/types';
 import {
   BookOpenCheck,
+  Book,
   FileBarChart,
   Info,
   LayoutDashboard,
@@ -19,7 +20,7 @@ export const navItems: NavItem[] = [
   {
     title: 'G検定とは',
     href: '/dashboard/about-g',
-    icon: Info,
+    icon: Book,
   },
   {
     title: '教科書',
