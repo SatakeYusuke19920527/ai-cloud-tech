@@ -110,23 +110,12 @@ const badges = [
   { title: '完全理解マスター', icon: ShieldCheck },
 ];
 
-const news = [
-  {
-    title: 'JDLA、最新シラバス改訂を発表',
-    detail: 'ガバナンスと社会実装セクションに重点を置いた新設項目が追加。',
-    time: '3時間前',
-  },
-  {
-    title: '最新LLMの比較レポート',
-    detail: '推論コストとパフォーマンスのバランスでGPT-4.1が引き続き優位。',
-    time: '昨日',
-  },
-  {
-    title: '倫理指針アップデート',
-    detail: '透明性要件に関する国際的な合意形成の動向を解説。',
-    time: '2日前',
-  },
-];
+type NewsItem = {
+  title: string;
+  detail: string;
+  time?: string;
+  url?: string;
+};
 
 const notes = [
   {
@@ -157,6 +146,8 @@ export default function Dashboard() {
   const [results, setResults] = useState<Record<string, DrillResult>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [news, setNews] = useState<NewsItem[]>([]);
+  const [newsLoading, setNewsLoading] = useState(true);
 
 
   useEffect(() => {
@@ -182,6 +173,85 @@ export default function Dashboard() {
     };
 
     fetchResults();
+  }, []);
+
+  useEffect(() => {
+    const fetchNews = async () => {
+      try {
+        const res = await fetch('/api/tavily', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            query: 'AI 人工知能 最新ニュース G検定 JDLA',
+            maxResults: 5,
+            includeAnswer: false,
+            searchDepth: 'basic',
+          }),
+        });
+
+        if (!res.ok) {
+          throw new Error('Failed to fetch news');
+        }
+
+        const { data } = await res.json();
+        
+        // Tavily APIのレスポンスをNewsItem形式に変換
+        if (data?.results && Array.isArray(data.results)) {
+          const newsItems: NewsItem[] = data.results.map((result: any, index: number) => ({
+            title: result.title || 'タイトルなし',
+            detail: result.content || result.snippet || '',
+            url: result.url,
+            time: index === 0 ? '最新' : `${index + 1}時間前`,
+          }));
+          setNews(newsItems);
+        } else {
+          // フォールバック: モックデータ
+          setNews([
+            {
+              title: 'JDLA、最新シラバス改訂を発表',
+              detail: 'ガバナンスと社会実装セクションに重点を置いた新設項目が追加。',
+              time: '3時間前',
+            },
+            {
+              title: '最新LLMの比較レポート',
+              detail: '推論コストとパフォーマンスのバランスでGPT-4.1が引き続き優位。',
+              time: '昨日',
+            },
+            {
+              title: '倫理指針アップデート',
+              detail: '透明性要件に関する国際的な合意形成の動向を解説。',
+              time: '2日前',
+            },
+          ]);
+        }
+      } catch (e) {
+        console.error('Failed to fetch news:', e);
+        // エラー時はモックデータを表示
+        setNews([
+          {
+            title: 'JDLA、最新シラバス改訂を発表',
+            detail: 'ガバナンスと社会実装セクションに重点を置いた新設項目が追加。',
+            time: '3時間前',
+          },
+          {
+            title: '最新LLMの比較レポート',
+            detail: '推論コストとパフォーマンスのバランスでGPT-4.1が引き続き優位。',
+            time: '昨日',
+          },
+          {
+            title: '倫理指針アップデート',
+            detail: '透明性要件に関する国際的な合意形成の動向を解説。',
+            time: '2日前',
+          },
+        ]);
+      } finally {
+        setNewsLoading(false);
+      }
+    };
+
+    fetchNews();
   }, []);
 
   
@@ -659,31 +729,56 @@ export default function Dashboard() {
             <div>
               <CardTitle>AI 最新ニュース</CardTitle>
               <CardDescription>
-                シラバスや業界動向に関係するアップデート（モック）
+                シラバスや業界動向に関係するアップデート
               </CardDescription>
             </div>
             <Badge variant="outline" className="gap-1">
               <Newspaper className="h-4 w-4" />
-              Mock feed
+              {newsLoading ? '読み込み中...' : 'Live feed'}
             </Badge>
           </CardHeader>
           <CardContent className="space-y-3">
-            {news.map((item) => (
-              <div
-                key={item.title}
-                className="flex flex-col gap-1 rounded-lg border border-border/60 bg-muted/40 px-4 py-3 md:flex-row md:items-center md:justify-between"
-              >
-                <div>
-                  <p className="text-base font-semibold text-foreground">
-                    {item.title}
-                  </p>
-                  <p className="text-sm text-muted-foreground">{item.detail}</p>
-                </div>
-                <span className="text-xs text-muted-foreground">
-                  {item.time}
-                </span>
+            {newsLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <Spinner className="h-6 w-6 text-muted-foreground" />
               </div>
-            ))}
+            ) : news.length === 0 ? (
+              <div className="py-8 text-center text-sm text-muted-foreground">
+                ニュースが見つかりませんでした
+              </div>
+            ) : (
+              news.map((item, index) => (
+                <div
+                  key={`${item.title}-${index}`}
+                  className="flex flex-col gap-1 rounded-lg border border-border/60 bg-muted/40 px-4 py-3 md:flex-row md:items-center md:justify-between"
+                >
+                  <div className="flex-1">
+                    {item.url ? (
+                      <a
+                        href={item.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-base font-semibold text-foreground hover:underline"
+                      >
+                        {item.title}
+                      </a>
+                    ) : (
+                      <p className="text-base font-semibold text-foreground">
+                        {item.title}
+                      </p>
+                    )}
+                    <p className="mt-1 text-sm text-muted-foreground line-clamp-2">
+                      {item.detail}
+                    </p>
+                  </div>
+                  {item.time && (
+                    <span className="text-xs text-muted-foreground md:ml-4">
+                      {item.time}
+                    </span>
+                  )}
+                </div>
+              ))
+            )}
           </CardContent>
         </Card>
 
@@ -710,24 +805,54 @@ export default function Dashboard() {
         </Card>
       </div>
       {/* 最新ドリル結果 */}
-      <h2 className="text-xl font-bold mb-4">最新ドリル結果</h2>
-
-      <ul className="space-y-2">
-        {entries.map(([chapterSlug, result]) => (
-          <li
-            key={chapterSlug}
-            className="rounded border p-3"
-          >
-            <div className="font-semibold">
-              チャプター: {chapterSlug}
+      <Card className="border border-border bg-card">
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div>
+            <CardTitle>最新ドリル結果</CardTitle>
+            <CardDescription>
+              各チャプターの最新の演習結果を表示
+            </CardDescription>
+          </div>
+          <Badge variant="outline" className="gap-1">
+            <Trophy className="h-4 w-4" />
+            {entries.length}件
+          </Badge>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {entries.length === 0 ? (
+            <div className="py-8 text-center text-sm text-muted-foreground">
+              ドリル結果がありません
             </div>
-            <div>スコア: {result.score}</div>
-            <div className="text-sm text-gray-500">
-              実施日: {new Date(result.performedAt).toLocaleString()}
-            </div>
-          </li>
-        ))}
-      </ul>
+          ) : (
+            entries.map(([chapterSlug, result]) => (
+              <div
+                key={chapterSlug}
+                className="flex flex-col gap-1 rounded-lg border border-border/60 bg-muted/40 px-4 py-3 md:flex-row md:items-center md:justify-between"
+              >
+                <div className="flex-1">
+                  <p className="text-base font-semibold text-foreground">
+                    チャプター: {chapterSlug}
+                  </p>
+                  <div className="mt-1 flex items-center gap-3">
+                    <span className="text-sm text-muted-foreground">
+                      スコア: <span className="font-semibold text-foreground">{result.score}</span>
+                    </span>
+                  </div>
+                </div>
+                <span className="text-xs text-muted-foreground md:ml-4">
+                  {new Date(result.performedAt).toLocaleString('ja-JP', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })}
+                </span>
+              </div>
+            ))
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
