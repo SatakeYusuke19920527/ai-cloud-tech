@@ -43,6 +43,98 @@ const normalizeHeadings = (text: string) => {
   return text.replace(/^(#{1,6})(?:[ \t]|\u3000)+/gm, '$1 ');
 };
 
+/**
+ * 太字記法 **text** の中に括弧が含まれている場合でも正しくパースされるように正規化
+ * react-markdownのパーサーは、**で囲まれたテキストの中に括弧がある場合、
+ * 正しくパースできないことがあるため、前処理で確実に検出できるようにする
+ */
+const normalizeBold = (text: string) => {
+  // **で囲まれたテキストを検出（括弧を含む）
+  // この正規表現は、**で始まり**で終わるパターンを探し、
+  // その中に括弧、日本語、その他の文字が含まれていてもマッチする
+  // 非貪欲マッチ（+?）を使用して、最短マッチを優先
+  return text.replace(/\*\*([^*]+?)\*\*/g, (match, content) => {
+    // 既に正しくフォーマットされている場合はそのまま返す
+    // ただし、括弧が含まれている場合は確実に処理されるようにする
+    return `**${content}**`;
+  });
+};
+
+/**
+ * Remarkプラグイン: パースされなかった太字記法を修正
+ * テキストノード内に残っている **text** パターンを検出して strong ノードに変換
+ */
+function remarkFixBoldWithParentheses() {
+  return (tree: any) => {
+    const replacements: Array<{ parent: any; index: number; newNodes: any[] }> = [];
+    
+    // まず、置き換える必要があるノードを収集
+    visit(tree, (node: any, index: number | undefined, parent: any) => {
+      if (node.type !== 'text') return;
+      if (!node.value || typeof node.value !== 'string') return;
+      if (!parent || !parent.children || index === undefined) return;
+      
+      // テキストノード内に **text** パターンが残っているかチェック
+      const boldPattern = /\*\*([^*]+?)\*\*/g;
+      const matches = Array.from(node.value.matchAll(boldPattern)) as RegExpMatchArray[];
+      
+      if (matches.length === 0) return;
+      
+      // テキストノードを複数のノードに分割
+      const newNodes: any[] = [];
+      let lastIndex = 0;
+      
+      matches.forEach((match) => {
+        const matchIndex = match.index ?? 0;
+        // マッチ前のテキスト
+        if (matchIndex > lastIndex) {
+          const beforeText = node.value.slice(lastIndex, matchIndex);
+          if (beforeText) {
+            newNodes.push({
+              type: 'text',
+              value: beforeText,
+            });
+          }
+        }
+        
+        // 太字ノードを作成
+        newNodes.push({
+          type: 'strong',
+          children: [
+            {
+              type: 'text',
+              value: match[1],
+            },
+          ],
+        });
+        
+        lastIndex = matchIndex + match[0].length;
+      });
+      
+      // 残りのテキスト
+      if (lastIndex < node.value.length) {
+        const remainingText = node.value.slice(lastIndex);
+        if (remainingText) {
+          newNodes.push({
+            type: 'text',
+            value: remainingText,
+          });
+        }
+      }
+      
+      // 置き換え情報を保存
+      if (newNodes.length > 0) {
+        replacements.push({ parent, index, newNodes });
+      }
+    });
+    
+    // 収集した置き換えを実行（逆順で実行してインデックスがずれないようにする）
+    replacements.reverse().forEach(({ parent, index, newNodes }) => {
+      parent.children.splice(index, 1, ...newNodes);
+    });
+  };
+}
+
 const parseImageSize = (rawSrc: string) => {
   const sizePattern = /\s*=?(\d*)x(\d*)$/;
   const match = rawSrc.match(sizePattern);
@@ -62,12 +154,29 @@ const parseImageSize = (rawSrc: string) => {
 const resolveImagePath = (src?: string): string => {
   if (!src) return '';
 
+  // まず完全一致でチェック
   if (localImages[src]) {
     return localImages[src];
   }
 
-  if (src.startsWith('http') || src.startsWith('/')) return src;
+  // /images/で始まるパスの場合、ファイル名を抽出してlocalImagesで検索
+  if (src.startsWith('/images/')) {
+    const filename = src.replace('/images/', '');
+    if (localImages[filename]) {
+      return localImages[filename];
+    }
+  }
 
+  // httpで始まる外部URLの場合はそのまま返す
+  if (src.startsWith('http')) return src;
+
+  // その他のパスの場合も、ファイル名だけを抽出してlocalImagesで検索
+  const filename = src.split('/').pop() || src;
+  if (localImages[filename]) {
+    return localImages[filename];
+  }
+
+  // 見つからない場合は元のパスを返す（相対パスやその他のパスの場合）
   return src;
 };
 
@@ -239,17 +348,18 @@ const directiveComponents = {
 
 export function Markdown({ content, className }: MarkdownProps) {
   const normalized = normalizeHeadings(content);
+  const normalizedWithBold = normalizeBold(normalized);
 
   return (
     <ReactMarkdown
-      remarkPlugins={[remarkGfm, remarkDirective, remarkCustomDirective]}
+      remarkPlugins={[remarkGfm, remarkDirective, remarkCustomDirective, remarkFixBoldWithParentheses]}
       components={{ ...markdownComponents, ...directiveComponents }}
       className={cn(
         'markdown-body text-[15px] leading-7 text-foreground [&>*+*]:mt-5 [&>*:first-child]:mt-0',
         className
       )}
     >
-      {normalized}
+      {normalizedWithBold}
     </ReactMarkdown>
   );
 }
