@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Spinner } from '@/components/ui/spinner';
 import { cn } from '@/lib/utils';
+import { useAuth as useClerkAuth } from '@clerk/nextjs';
 import {
   ArrowDownRight,
   ArrowUpRight,
@@ -30,15 +31,20 @@ import {
 } from 'lucide-react';
 import { useEffect } from 'react';
 import { useState } from 'react';
+/** 秒を "Xh Ym" 形式に変換 */
+function formatStudyTime(seconds: number): string {
+  if (!Number.isFinite(seconds) || seconds < 0) return '0h0m';
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  return `${h}h${m}m`;
+}
 
-const paceSummary = [
+const paceSummaryStatic = [
   { label: '達成率', value: '68%', detail: '総学習計画に対して' },
   { label: '進捗状況', value: 'やや先行', detail: '+6% over plan' },
   { label: '残り日数', value: '32日', detail: '試験日まで' },
   { label: '今日の学習', value: '65 / 90m', detail: '対目標' },
-  { label: '総学習時間', value: '42h', detail: '累計' },
 ];
-
 const heatmap = [
   [0, 2, 3, 4, 1, 0, 5],
   [1, 0, 2, 3, 0, 1, 4],
@@ -141,6 +147,8 @@ type ApiResponse = {
 
 
 
+
+
 export default function Dashboard() {
   const { userId } = useAuth();
   const [results, setResults] = useState<Record<string, DrillResult>>({});
@@ -148,7 +156,30 @@ export default function Dashboard() {
   const [error, setError] = useState<string | null>(null);
   const [news, setNews] = useState<NewsItem[]>([]);
   const [newsLoading, setNewsLoading] = useState(true);
+  const [totalStudySeconds, setTotalStudySeconds] = useState(0);
 
+
+  useEffect(() => {
+    if (!userId) return;
+    const fetchStudyTime = async () => {
+      try {
+        const res = await fetch('/api/user/study-time', { cache: 'no-store' });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (typeof data.totalSeconds === 'number') {
+          setTotalStudySeconds(data.totalSeconds);
+        }
+      } catch {
+        // 未ログイン時などは無視
+      }
+    };
+    fetchStudyTime();
+  }, [userId]);
+
+  const paceSummary = [
+    ...paceSummaryStatic,
+    { label: '総学習時間', value: formatStudyTime(totalStudySeconds), detail: '累計' },
+  ];
 
   useEffect(() => {
     const fetchResults = async () => {
@@ -254,7 +285,6 @@ export default function Dashboard() {
     fetchNews();
   }, []);
 
-  
   if (loading) {
     return (
       <div className="flex items-center justify-center py-10">

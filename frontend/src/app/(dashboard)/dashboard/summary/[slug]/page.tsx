@@ -7,6 +7,7 @@ import { SignInButton, SignUpButton } from '@clerk/nextjs';
 import { Button } from '@/components/ui/button';
 import { summaryChapters } from '@/lib/summary-data';
 import { MemorizeTable } from './memorize-table';
+import { StudyTimeTracker } from '@/components/dashboard/study-time-tracker';
 
 export const dynamicParams = false;
 
@@ -62,6 +63,8 @@ export default async function SummaryChapterPage({
 
   return (
     <div className="space-y-8">
+      {/* 要点整理ページ滞在時間を学習時間として計測 */}
+      <StudyTimeTracker />
       <div className="space-y-2">
         <Link
           href="/dashboard/summary"
