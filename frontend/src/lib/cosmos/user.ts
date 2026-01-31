@@ -24,6 +24,8 @@ export const createUser = async (clerkId: string, email: string) => {
         isSubscribed: false, // サブスク加入中かどうか（true / false）
         subscriptionPurchasedAt: null, // 購入日（ISO形式 or null）
         subscriptionExpiresAt: null, // サブスクの有効期限（ISO形式 or null）
+        // 総学習時間（秒）
+        totalStudySeconds: 0,
       });
 
       // 作成したリソースを返却
@@ -257,3 +259,83 @@ export const selectUser = async (clerkId: string) => {
     }
   });
 };
+
+/**
+ * ユーザーの総学習時間（秒）を取得
+ */
+export const getUserStudyTimeSeconds = async (clerkId: string) => {
+  return new Promise<number>(async (resolve, reject) => {
+    try {
+      const cosmosClient = new CosmosClient(
+        process.env.COSMOS_CONNECTION_STRING!
+      );
+      const database = cosmosClient.database(process.env.COSMOS_DATABASE_NAME!);
+      const container = database.container(
+        process.env.COSMOS_CONTAINER_NAME_USER!
+      );
+
+      const item = container.item(clerkId, clerkId);
+      const { resource: existingUser } = await item.read<{
+        totalStudySeconds?: number;
+      }>();
+
+      if (!existingUser) {
+        throw new Error(`User with id ${clerkId} not found.`);
+      }
+
+      resolve(existingUser.totalStudySeconds ?? 0);
+    } catch (error) {
+      console.error(error);
+      reject(error);
+    }
+  });
+};
+
+/**
+ * ユーザーの総学習時間（秒）に加算
+ */
+export const addUserStudyTimeSeconds = async (
+  clerkId: string,
+  seconds: number
+) => {
+  if (!Number.isFinite(seconds) || seconds <= 0) {
+    return;
+  }
+
+  return new Promise(async (resolve, reject) => {
+    try {
+      const cosmosClient = new CosmosClient(
+        process.env.COSMOS_CONNECTION_STRING!
+      );
+      const database = cosmosClient.database(process.env.COSMOS_DATABASE_NAME!);
+      const container = database.container(
+        process.env.COSMOS_CONTAINER_NAME_USER!
+      );
+
+      const item = container.item(clerkId, clerkId);
+      const { resource: existingUser } = await item.read<{
+        totalStudySeconds?: number;
+      }>();
+
+      if (!existingUser) {
+        throw new Error(`User with id ${clerkId} not found.`);
+      }
+
+      const now = new Date().toISOString();
+      const currentTotal = existingUser.totalStudySeconds ?? 0;
+
+      const updatedUser = {
+        ...existingUser,
+        totalStudySeconds: currentTotal + Math.round(seconds),
+        updatedAt: now,
+      };
+
+      const { resource } = await item.replace(updatedUser);
+      resolve(resource);
+    } catch (error) {
+      console.error(error);
+      reject(error);
+    }
+  });
+};
+

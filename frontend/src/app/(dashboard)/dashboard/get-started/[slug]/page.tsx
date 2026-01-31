@@ -4,6 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import { getChapterBySlug, chapters } from "@/lib/chapter-data";
 import { Separator } from "@/components/ui/separator";
 import { MarkdownBody, TOC } from "@/components/markdown/markdown-toc";
+import { StudyTimeTracker } from "@/components/dashboard/study-time-tracker";
 
 export default async function ChapterPage({
   params,
@@ -18,8 +19,9 @@ export default async function ChapterPage({
 
 
   return (
-
-<div className="w-full">
+    <div className="w-full">
+      {/* 教科書ページ滞在時間を学習時間として計測 */}
+      <StudyTimeTracker />
       <main className="mx-auto w-full max-w-6xl px-2 sm:px-4 md:px-5 flex flex-col gap-2">
         <div className="">
           <Link

@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { mockExams } from '@/lib/mock-exam-data';
 import { MCQRunner } from '@/components/assessment/mcq-runner';
+import { StudyTimeTracker } from '@/components/dashboard/study-time-tracker';
 
 export const dynamicParams = false;
 
@@ -63,6 +64,8 @@ export default async function MockExamPage({
 
   return (
     <div className="space-y-6">
+      {/* 演習模試ページ滞在時間を学習時間として計測 */}
+      <StudyTimeTracker />
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <Link
