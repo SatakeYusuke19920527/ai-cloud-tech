@@ -26,6 +26,8 @@ export const createUser = async (clerkId: string, email: string) => {
         subscriptionExpiresAt: null, // サブスクの有効期限（ISO形式 or null）
         // 総学習時間（秒）
         totalStudySeconds: 0,
+        // 受験日（YYYY-MM-DD or null）
+        examDate: null,
       });
 
       // 作成したリソースを返却
@@ -70,6 +72,56 @@ export const updateUser = async (clerkId: string, newEmail: string) => {
       };
 
       // 置換 (replace) で更新を実施
+      const { resource } = await item.replace(updatedUser);
+      resolve(resource);
+    } catch (error) {
+      console.error(error);
+      reject(error);
+    }
+  });
+};
+
+/**
+ * 受験日を更新
+ * @param clerkId - ユーザーID（Clerk）
+ * @param examDate - 受験日（YYYY-MM-DD）または null でクリア
+ */
+export const updateExamDate = async (
+  clerkId: string,
+  examDate: string | null
+) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const cosmosClient = new CosmosClient(
+        process.env.COSMOS_CONNECTION_STRING!
+      );
+      const database = cosmosClient.database(process.env.COSMOS_DATABASE_NAME!);
+      const container = database.container(
+        process.env.COSMOS_CONTAINER_NAME_USER!
+      );
+
+      const item = container.item(clerkId, clerkId);
+      const { resource: existingUser } = await item.read();
+
+      if (!existingUser) {
+        throw new Error(`User with id ${clerkId} not found.`);
+      }
+
+      // 日付形式の検証（null または YYYY-MM-DD）
+      let normalizedExamDate: string | null = null;
+      if (examDate != null && typeof examDate === 'string' && examDate.trim() !== '') {
+        const parsed = new Date(examDate.trim());
+        if (!isNaN(parsed.getTime())) {
+          normalizedExamDate = parsed.toISOString().slice(0, 10); // YYYY-MM-DD
+        }
+      }
+
+      const updatedUser = {
+        ...existingUser,
+        examDate: normalizedExamDate,
+        updatedAt: new Date().toISOString(),
+      };
+
       const { resource } = await item.replace(updatedUser);
       resolve(resource);
     } catch (error) {

@@ -16,9 +16,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
+import { Calendar } from 'lucide-react';
 import { SignInButton, SignUpButton, useAuth } from '@clerk/nextjs';
+import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 
 type SubscriptionInfo = {
@@ -35,6 +38,44 @@ export default function Settings() {
   const [canceling, setCanceling] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [examDateInput, setExamDateInput] = useState('');
+  const [examDateSaved, setExamDateSaved] = useState(false);
+  const [examDateSaving, setExamDateSaving] = useState(false);
+
+  useEffect(() => {
+    if (!userId) return;
+    const fetchExamDate = async () => {
+      try {
+        const res = await fetch('/api/user/exam-date', { cache: 'no-store' });
+        if (!res.ok) return;
+        const data = (await res.json()) as { examDate?: string | null };
+        setExamDateInput(data.examDate ?? '');
+      } catch {
+        // ignore
+      }
+    };
+    fetchExamDate();
+  }, [userId]);
+
+  const handleSaveExamDate = async () => {
+    const value = examDateInput.trim() || null;
+    setExamDateSaving(true);
+    setExamDateSaved(false);
+    try {
+      const res = await fetch('/api/user/exam-date', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ examDate: value }),
+      });
+      if (!res.ok) throw new Error('Failed to save');
+      setExamDateSaved(true);
+      setTimeout(() => setExamDateSaved(false), 2000);
+    } catch {
+      // could set error state
+    } finally {
+      setExamDateSaving(false);
+    }
+  };
 
   useEffect(() => {
     if (!userId) {
@@ -159,6 +200,49 @@ export default function Settings() {
         </p>
       </div>
       <Separator />
+      <Card className="border border-border bg-card">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Calendar className="h-5 w-5" />
+            試験日（カウントダウン用）
+          </CardTitle>
+          <CardDescription>
+            ダッシュボードの「試験日カウントダウン」に表示する日付を設定します。G検定の受験予定日を入力してください。
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex flex-wrap items-end gap-3">
+            <div className="space-y-2">
+              <label htmlFor="exam-date" className="text-sm font-medium text-foreground">
+                試験日
+              </label>
+              <Input
+                id="exam-date"
+                type="date"
+                value={examDateInput}
+                onChange={(e) => setExamDateInput(e.target.value)}
+                className="w-full min-w-[180px]"
+              />
+            </div>
+            <Button
+              onClick={handleSaveExamDate}
+              disabled={examDateSaving}
+            >
+              {examDateSaving ? '保存中...' : '保存する'}
+            </Button>
+            {examDateSaved && (
+              <span className="text-sm text-emerald-600 dark:text-emerald-400">
+                保存しました
+              </span>
+            )}
+          </div>
+          {examDateInput && (
+            <p className="text-xs text-muted-foreground">
+              設定後、<Link href="/dashboard" className="underline hover:no-underline">ダッシュボード</Link>で残り日数が表示されます。
+            </p>
+          )}
+        </CardContent>
+      </Card>
       <div className="rounded-2xl border border-muted bg-card/70 p-5 shadow-sm">
         <p className="text-sm font-medium text-muted-foreground">
           現在のステータス
