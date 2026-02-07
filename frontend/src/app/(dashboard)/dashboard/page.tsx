@@ -13,8 +13,10 @@ import {
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Spinner } from '@/components/ui/spinner';
+import { getDaysRemaining } from '@/lib/exam-date';
 import { cn } from '@/lib/utils';
 import { useAuth as useClerkAuth } from '@clerk/nextjs';
+import Link from 'next/link';
 import {
   ArrowDownRight,
   ArrowUpRight,
@@ -157,7 +159,22 @@ export default function Dashboard() {
   const [news, setNews] = useState<NewsItem[]>([]);
   const [newsLoading, setNewsLoading] = useState(true);
   const [totalStudySeconds, setTotalStudySeconds] = useState(0);
+  const [examDate, setExamDate] = useState<string | null>(null);
 
+  useEffect(() => {
+    if (!userId) return;
+    const fetchExamDate = async () => {
+      try {
+        const res = await fetch('/api/user/exam-date', { cache: 'no-store' });
+        if (!res.ok) return;
+        const data = (await res.json()) as { examDate?: string | null };
+        setExamDate(data.examDate ?? null);
+      } catch {
+        // ignore
+      }
+    };
+    fetchExamDate();
+  }, [userId]);
 
   useEffect(() => {
     if (!userId) return;
@@ -176,8 +193,13 @@ export default function Dashboard() {
     fetchStudyTime();
   }, [userId]);
 
+  const examDaysRemaining = getDaysRemaining(examDate);
+  const daysLabel = examDaysRemaining === null ? '未設定' : `${examDaysRemaining}日`;
   const paceSummary = [
-    ...paceSummaryStatic,
+    paceSummaryStatic[0],
+    paceSummaryStatic[1],
+    { label: '残り日数', value: daysLabel, detail: '試験日まで' },
+    paceSummaryStatic[3],
     { label: '総学習時間', value: formatStudyTime(totalStudySeconds), detail: '累計' },
   ];
 
@@ -344,29 +366,13 @@ export default function Dashboard() {
         <p className="text-sm uppercase tracking-[0.3em] text-muted-foreground">
           G検定ダッシュボード
         </p>
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-              進捗サマリー
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              学習状況・模試結果・弱点を一目で確認できます。
-            </p>
-          </div>
-          <div className="flex items-center gap-3 text-xs text-muted-foreground">
-            <div className="flex items-center gap-1">
-              <span className="inline-flex h-3 w-3 rounded-sm bg-emerald-400/70" />
-              高
-            </div>
-            <div className="flex items-center gap-1">
-              <span className="inline-flex h-3 w-3 rounded-sm bg-indigo-400/70" />
-              中
-            </div>
-            <div className="flex items-center gap-1">
-              <span className="inline-flex h-3 w-3 rounded-sm bg-slate-300/70 dark:bg-slate-700/70" />
-              低
-            </div>
-          </div>
+        <div>
+          <h1 className="text-3xl font-semibold tracking-tight text-foreground">
+            進捗サマリー
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            学習状況・模試結果・弱点を一目で確認できます。
+          </p>
         </div>
       </header>
 
@@ -397,11 +403,21 @@ export default function Dashboard() {
       <div className="grid gap-6 xl:grid-cols-[2fr_1.2fr]">
         {/* 習慣ヒートマップ + カウントダウン */}
         <Card className="border border-primary/15 bg-card">
-          <CardHeader>
-            <CardTitle>学習習慣ヒートマップ（過去6週）</CardTitle>
-            <CardDescription>
-              1マス=1日の学習セッション。濃いほど積み重ねています。
-            </CardDescription>
+          <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2">
+            <div>
+              <CardTitle>学習習慣ヒートマップ（過去6週）</CardTitle>
+              <CardDescription>
+                1マス=1日の学習セッション。濃いほど積み重ねています。
+              </CardDescription>
+            </div>
+            <div className="flex items-center gap-3 text-xs text-muted-foreground">
+              <span className="inline-flex h-3 w-3 rounded-sm bg-emerald-400/70" aria-hidden />
+              <span>高</span>
+              <span className="inline-flex h-3 w-3 rounded-sm bg-indigo-400/70" aria-hidden />
+              <span>中</span>
+              <span className="inline-flex h-3 w-3 rounded-sm bg-slate-300/70 dark:bg-slate-700/70" aria-hidden />
+              <span>低</span>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
@@ -451,7 +467,15 @@ export default function Dashboard() {
                 <Calendar className="h-6 w-6 text-indigo-500" />
                 <div>
                   <p className="text-sm text-muted-foreground">残り日数</p>
-                  <p className="text-2xl font-semibold">32日</p>
+                  {examDate == null || examDate === '' ? (
+                    <p className="text-sm font-semibold text-muted-foreground">
+                      <Link href="/dashboard/settings" className="underline hover:no-underline">
+                        設定で試験日を指定
+                      </Link>
+                    </p>
+                  ) : (
+                    <p className="text-2xl font-semibold">{examDaysRemaining ?? 0}日</p>
+                  )}
                 </div>
               </div>
               <div className="flex items-center gap-3 rounded-lg border border-border/60 bg-muted/40 p-4">
