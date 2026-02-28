@@ -6,6 +6,8 @@ import chapter5 from '@/data/drill/chapter-5.json' assert { type: 'json' };
 import chapter6 from '@/data/drill/chapter-6.json' assert { type: 'json' };
 import chapter7 from '@/data/drill/chapter-7.json' assert { type: 'json' };
 import chapter8 from '@/data/drill/chapter-8.json' assert { type: 'json' };
+import chapter9 from '@/data/drill/chapter-9.json' assert { type: 'json' };
+import chapter10 from '@/data/drill/chapter-10.json' assert { type: 'json' };
 import { DrillChapter } from '@/types/types';
 
 export const drillChapters: DrillChapter[] = [
@@ -17,4 +19,6 @@ export const drillChapters: DrillChapter[] = [
   chapter6 as DrillChapter,
   chapter7 as DrillChapter,
   chapter8 as DrillChapter,
+  chapter9 as DrillChapter,
+  chapter10 as DrillChapter,
 ];
